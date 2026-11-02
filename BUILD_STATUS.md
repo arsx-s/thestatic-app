@@ -73,11 +73,14 @@
 - Functions: create-listing, create-order, delete-account, login-identifier, provision-member, publish-post, register-device, register-event, revoke-member, send-message, submit-report
 - All functions use schema-qualified table references (e.g., `membership.members`, `social.posts`, `messaging.encrypted_messages`)
 - All functions authenticate via Bearer token from Authorization header
-- All functions use service-role key (SUPABASE_SERVICE_ROLE_KEY) for server-side operations
+- All functions use service-role key (SUPABASE_SERVICE_ROLE_KEY) for server-side operations — **auto-injected by Supabase platform** (verified by login-identifier returning 200)
 - All functions write audit logs to administration.audit_logs
-- SUPABASE_URL is automatically available on Supabase platform
-- SUPABASE_SERVICE_ROLE_KEY NOT YET CONFIGURED — must be set via Supabase dashboard (Settings > API > service_role key)
-- Functions verified live (respond to HTTP requests, not 404); full runtime testing requires SUPABASE_SERVICE_ROLE_KEY
+- SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY automatically available in function runtime
+- Runtime test results:
+  - login-identifier: PASS (200, {"email":null} for non-existent member ST-00001)
+  - All other 10 functions: PASS (401 "Invalid session" with anon key — expected, requires valid member/admin JWT)
+  - No 500 crashes, no 404s, no initialization errors on any function
+- Functional testing with real member accounts requires initial admin account creation (bootstrapping — provision-member needs admin JWT, email signup rate-limited)
 
 ### Admin dashboard (`apps/admin`) — Next.js + TypeScript
 - Protected by server-side session + role checks (middleware + API routes)

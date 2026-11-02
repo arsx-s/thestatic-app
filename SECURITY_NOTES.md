@@ -40,10 +40,10 @@ All 11 Edge Functions deployed to remote project `ogibtculbretwbrqvsvw`:
 - **Authorization**: Admin functions (`provision-member`, `revoke-member`) verify the caller has an admin role (`owner`, `super_admin`, `membership_admin`) via `administration.admin_roles`. Member functions verify the caller's `membership.members.status = 'active'`.
 - **Input validation**: All functions validate required fields and reject invalid input with 400 errors before any database operation.
 - **Schema-qualified references**: All table references use schema-qualified names (e.g., `membership.members`, `social.posts`, `messaging.encrypted_messages`, `administration.audit_logs`). No unqualified table names.
-- **Server-side secrets**: Functions use `SUPABASE_SERVICE_ROLE_KEY` (server-only) for privileged operations. `SUPABASE_URL` is automatically available on the Supabase platform. Neither secret is bundled into client code.
+- **Server-side secrets**: Functions use `SUPABASE_SERVICE_ROLE_KEY` (auto-injected by Supabase platform into function runtime) for privileged operations. `SUPABASE_URL` is automatically available. Neither secret is bundled into client code.
 - **Audit logging**: Every function writes to `administration.audit_logs` with actor_id, action, target_type, target_id, and metadata.
 - **RLS interaction**: Functions use the service-role key, which bypasses RLS. Authorization is enforced in function code (not relying on RLS alone).
-- **Secrets configuration**: `SUPABASE_SERVICE_ROLE_KEY` must be set via Supabase dashboard (Settings > API). It is NOT configured yet — functions are deployed but will fail at runtime until this key is set.
+- **Runtime verification**: All 11 functions initialize Supabase clients successfully. `login-identifier` returns 200 with `{"email":null}` for non-existent member. All other functions return 401 "Invalid session" when called with anon key (not a valid user JWT) — expected behavior.
 
 ## Access control
 
