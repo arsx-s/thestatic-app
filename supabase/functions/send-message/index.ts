@@ -49,6 +49,31 @@ serve(async (req) => {
 
   const senderId = userData.user.id;
 
+  // Enforce mandatory password change
+  const { data: senderMember, error: senderMemberError } = await supabase
+    .from("membership.members")
+    .select("must_change_password, status")
+    .eq("id", senderId)
+    .maybeSingle();
+
+  if (senderMemberError || !senderMember || senderMember.status !== "active") {
+    return new Response(JSON.stringify({ error: "Account not active" }), {
+      status: 403,
+      headers: corsHeaders,
+    });
+  }
+
+  if (senderMember.must_change_password === true) {
+    return new Response(
+      JSON.stringify({
+        error: "Password change required",
+        message: "Please change your temporary password before sending messages.",
+        password_change_required: true,
+      }),
+      { status: 403, headers: corsHeaders },
+    );
+  }
+
   let body: {
     conversation_id?: string;
     sender_device_id?: string;

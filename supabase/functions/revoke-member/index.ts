@@ -65,6 +65,31 @@ serve(async (req) => {
     });
   }
 
+  // Enforce mandatory password change for the acting admin
+  const { data: actorMember, error: actorMemberError } = await supabase
+    .from("membership.members")
+    .select("must_change_password, status")
+    .eq("id", actorId)
+    .maybeSingle();
+
+  if (actorMemberError || !actorMember || actorMember.status !== "active") {
+    return new Response(JSON.stringify({ error: "Account not active" }), {
+      status: 403,
+      headers: corsHeaders,
+    });
+  }
+
+  if (actorMember.must_change_password === true) {
+    return new Response(
+      JSON.stringify({
+        error: "Password change required",
+        message: "Please change your temporary password before using admin functions.",
+        password_change_required: true,
+      }),
+      { status: 403, headers: corsHeaders },
+    );
+  }
+
   let body: {
     target_member_id?: string;
     status?: "suspended" | "active";

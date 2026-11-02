@@ -60,7 +60,7 @@ serve(async (req) => {
   // Confirm the member is active.
   const { data: member, error: memberError } = await supabase
     .from("membership.members")
-    .select("status")
+    .select("status, must_change_password")
     .eq("id", reporterId)
     .single();
   if (memberError || !member || member.status !== "active") {
@@ -68,6 +68,18 @@ serve(async (req) => {
       status: 403,
       headers: corsHeaders,
     });
+  }
+
+  // Enforce mandatory password change
+  if (member.must_change_password === true) {
+    return new Response(
+      JSON.stringify({
+        error: "Password change required",
+        message: "Please change your temporary password before submitting reports.",
+        password_change_required: true,
+      }),
+      { status: 403, headers: corsHeaders },
+    );
   }
 
   let body: {
