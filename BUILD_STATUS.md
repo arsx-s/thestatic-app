@@ -6,15 +6,28 @@
 ### Directories
 - `apps/mobile` — React Native + Expo + TypeScript + Expo Router (SDK 58, development builds)
 - `apps/admin` — Next.js + TypeScript (protected admin dashboard)
+- `apps/web` — Next.js PWA (installable on iPhone via Safari)
 - `packages/shared-types` — domain types
 - `packages/validation` — zod schemas
 - `packages/crypto-core` — Web Crypto AES-GCM / HKDF / key-wrap primitives
 - `packages/api-client` — typed Supabase client wrapper
 - `packages/design-system` — monochrome design tokens
 - `supabase/migrations` — `001_initial_schema.sql`
-- `supabase/functions` — 11 Edge Functions
+- `supabase/functions` — 12 Edge Functions (incl. bootstrap-admin)
 - `supabase/seed`
 - `docs`, `tests`
+
+### PWA (`apps/web`) — iOS-installable via Safari
+- Next.js 15 with App Router
+- Web manifest at `/manifest` (standalone mode, portrait orientation)
+- Service worker at `/sw` (app shell caching, no private data caching)
+- PNG icons: 72x72 through 512x512, apple-touch-icon (180x180), maskable-icon, splash
+- All member pages: Home, Discover, Create, Inbox, Profile, Settings, Hub + sub-pages
+- All auth pages: Login, Forgot Password, Account Recovery, Device Verification
+- All admin pages: Dashboard, Members, Applications, Moderation, Marketplace, Store, Events, Administration
+- API routes: `/api/auth/login`, `/api/auth/logout`
+- Build: ✅ Compiles successfully (30 pages generated)
+- Deploy: Ready for Vercel (connect GitHub repo, set env vars)
 
 ### Documents inspected (complete)
 - `about the app.txt`
@@ -68,9 +81,9 @@
 - 34 RLS policies across all tables
 
 ### Supabase backend — Edge Functions deployed to remote project
-- All 11 Edge Functions deployed to remote project `ogibtculbretwbrqvsvw` ("The Static") via `supabase functions deploy --yes`
+- All 12 Edge Functions deployed to remote project `ogibtculbretwbrqvsvw` ("The Static") via `supabase functions deploy --yes`
 - All functions status: ACTIVE, version 1
-- Functions: create-listing, create-order, delete-account, login-identifier, provision-member, publish-post, register-device, register-event, revoke-member, send-message, submit-report
+- Functions: bootstrap-admin, create-listing, create-order, delete-account, login-identifier, provision-member, publish-post, register-device, register-event, revoke-member, send-message, submit-report
 - All functions use schema-qualified table references (e.g., `membership.members`, `social.posts`, `messaging.encrypted_messages`)
 - All functions authenticate via Bearer token from Authorization header
 - All functions use service-role key (SUPABASE_SERVICE_ROLE_KEY) for server-side operations — **auto-injected by Supabase platform** (verified by login-identifier returning 200)
@@ -78,9 +91,9 @@
 - SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY automatically available in function runtime
 - Runtime test results:
   - login-identifier: PASS (200, {"email":null} for non-existent member ST-00001)
-  - All other 10 functions: PASS (401 "Invalid session" with anon key — expected, requires valid member/admin JWT)
+  - All other 11 functions: PASS (401 "Invalid session" with anon key — expected, requires valid member/admin JWT)
   - No 500 crashes, no 404s, no initialization errors on any function
-- Functional testing with real member accounts requires initial admin account creation (bootstrapping — provision-member needs admin JWT, email signup rate-limited)
+- Functional testing with real member accounts requires initial admin account creation (bootstrapping — use bootstrap-admin Edge Function with SUPABASE_BOOTSTRAP_TOKEN, or provision-member with admin JWT)
 
 ### Admin dashboard (`apps/admin`) — Next.js + TypeScript
 - Protected by server-side session + role checks (middleware + API routes)
