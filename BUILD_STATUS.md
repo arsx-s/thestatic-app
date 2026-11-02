@@ -121,3 +121,45 @@
 - Coolicons is Figma-only (no npm); lucide-react-native used for stroke icons.
 - iOS Keychain / Android Keystore via expo-secure-store; Web Crypto for AES-GCM.
 - Store checkout in test mode until payment credentials are provided.
+
+### Founder account bootstrap (REQUIRES USER ACTION)
+- Founder Static ID: `static/001` (reserved, cannot be changed)
+- Founder role: `founder`
+- Founder account NOT YET CREATED — requires bootstrap-admin Edge Function invocation
+- To create: Set `SUPABASE_BOOTSTRAP_TOKEN` env var in Supabase dashboard → Edge Functions → settings, then call
+  `POST https://ogibtculbretwbrqvsvw.supabase.co/functions/v1/bootstrap-admin`
+  with Header: `Authorization: Bearer <bootstrap_token>`
+  and Body: `{"email": "founder@example.com", "username": "founder"}`
+- Response includes temporary password (shown ONLY once, never logged)
+- Founder must change password on first login (mandatory)
+- Founder can access both PWA and Admin Dashboard with same credentials
+
+### Migration 002 — Founder & Temp Password System
+- `must_change_password` column added to `membership.members`
+- `static_id` regex updated to allow `static/001` founder format
+- `founder` added to `admin_roles.role` check constraint
+- `membership.protect_founder_accounts()` trigger blocks non-founders from modifying founder accounts
+- Founder RLS policies added
+
+### Edge Function Security — Password Change Enforcement
+Backend enforcement of `must_change_password` on:
+- `publish-post` — blocks post creation until password changed
+- `send-message` — blocks message sending until password changed
+- `create-listing` — blocks listing creation until password changed
+- `create-order` — blocks order creation until password changed
+- `register-event` — blocks event registration until password changed
+- `submit-report` — blocks report submission until password changed
+- `revoke-member` — blocks admin revocation until password changed
+- `delete-account` — NOT blocked (user can delete account with temp password)
+- `login-identifier`, `register-device`, `bootstrap-admin`, `check-password-change`, `change-password` — exempt (auth/password related)
+
+### Missing credentials / external services (UPDATED)
+- Supabase project URL + anon key: CONFIGURED in .env files
+- Supabase service-role key: auto-injected into Edge Functions, not in client code
+- `SUPABASE_BOOTSTRAP_TOKEN`: NOT SET — required for founder bootstrap (set in Supabase dashboard)
+- Apple Developer / Google Play Console accounts: not needed (PWA only)
+- BDT payment-provider credentials: not needed (test mode)
+- APNs / FCM push credentials: not needed (web push only)
+- Vercel account: needed for PWA deployment (connect GitHub repo at https://vercel.com)
+- Custom domains (app.thestatic.com, admin.thestatic.com): not configured — use Vercel deployment URLs
+
