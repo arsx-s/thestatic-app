@@ -27,7 +27,13 @@
 - All admin pages: Dashboard, Members, Applications, Moderation, Marketplace, Store, Events, Administration
 - API routes: `/api/auth/login`, `/api/auth/logout`
 - Build: ✅ Compiles successfully (30 pages generated)
-- Deploy: Ready for Vercel (connect GitHub repo, set env vars)
+- Deploy: Configured for Netlify (netlify.toml at root)
+  - Base directory: `/`
+  - Build command: `pnpm --filter @the-static/web run build`
+  - Publish directory: `apps/web/.next`
+  - Environment: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY
+- Existing Netlify site: `https://thestaticapp.netlify.app/` (was returning 404 — fixed by moving netlify.toml to root, correcting build command and publish directory)
+- Requires Netlify UI reconfiguration with correct base/build/publish settings, then redeploy
 
 ### Documents inspected (complete)
 - `about the app.txt`
@@ -81,9 +87,9 @@
 - 34 RLS policies across all tables
 
 ### Supabase backend — Edge Functions deployed to remote project
-- All 12 Edge Functions deployed to remote project `ogibtculbretwbrqvsvw` ("The Static") via `supabase functions deploy --yes`
+- All 14 Edge Functions deployed to remote project `ogibtculbretwbrqvsvw` ("The Static") via `supabase functions deploy --yes`
 - All functions status: ACTIVE, version 1
-- Functions: bootstrap-admin, create-listing, create-order, delete-account, login-identifier, provision-member, publish-post, register-device, register-event, revoke-member, send-message, submit-report
+- Functions: bootstrap-admin, change-password, check-password-change, create-listing, create-order, delete-account, login-identifier, provision-member, publish-post, register-device, register-event, revoke-member, send-message, submit-report
 - All functions use schema-qualified table references (e.g., `membership.members`, `social.posts`, `messaging.encrypted_messages`)
 - All functions authenticate via Bearer token from Authorization header
 - All functions use service-role key (SUPABASE_SERVICE_ROLE_KEY) for server-side operations — **auto-injected by Supabase platform** (verified by login-identifier returning 200)
@@ -91,7 +97,7 @@
 - SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY automatically available in function runtime
 - Runtime test results:
   - login-identifier: PASS (200, {"email":null} for non-existent member ST-00001)
-  - All other 11 functions: PASS (401 "Invalid session" with anon key — expected, requires valid member/admin JWT)
+  - All other 13 functions: PASS (401 "Invalid session" with anon key — expected, requires valid member/admin JWT)
   - No 500 crashes, no 404s, no initialization errors on any function
 - Functional testing with real member accounts requires initial admin account creation (bootstrapping — use bootstrap-admin Edge Function with SUPABASE_BOOTSTRAP_TOKEN, or provision-member with admin JWT)
 
@@ -160,6 +166,6 @@ Backend enforcement of `must_change_password` on:
 - Apple Developer / Google Play Console accounts: not needed (PWA only)
 - BDT payment-provider credentials: not needed (test mode)
 - APNs / FCM push credentials: not needed (web push only)
-- Vercel account: needed for PWA deployment (connect GitHub repo at https://vercel.com)
-- Custom domains (app.thestatic.com, admin.thestatic.com): not configured — use Vercel deployment URLs
+- Netlify account: needed for PWA deployment (connect GitHub repo at https://netlify.com)
+- Custom domains (app.thestatic.com, admin.thestatic.com): not configured — use Netlify deployment URLs
 
