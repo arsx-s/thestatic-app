@@ -53,7 +53,7 @@ serve(async (req) => {
   const value = isStaticId ? identifier.trim() : identifier.trim().toLowerCase();
 
   const { data: member, error } = await supabase
-    .from("members")
+    .from("membership.members")
     .select("id, static_id, username, email, status, role")
     .filter(column, "eq", value)
     .single();

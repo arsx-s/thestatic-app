@@ -32,6 +32,19 @@ The server CANNOT see:
   Edge Function (`login-identifier`).
 - Sessions persisted in secure storage (not AsyncStorage).
 
+## Edge Function Security
+
+All 11 Edge Functions deployed to remote project `ogibtculbretwbrqvsvw`:
+
+- **Authentication**: Every function validates the Bearer token from the Authorization header via `supabase.auth.getUser(token)`. Unauthenticated requests return 401.
+- **Authorization**: Admin functions (`provision-member`, `revoke-member`) verify the caller has an admin role (`owner`, `super_admin`, `membership_admin`) via `administration.admin_roles`. Member functions verify the caller's `membership.members.status = 'active'`.
+- **Input validation**: All functions validate required fields and reject invalid input with 400 errors before any database operation.
+- **Schema-qualified references**: All table references use schema-qualified names (e.g., `membership.members`, `social.posts`, `messaging.encrypted_messages`, `administration.audit_logs`). No unqualified table names.
+- **Server-side secrets**: Functions use `SUPABASE_SERVICE_ROLE_KEY` (server-only) for privileged operations. `SUPABASE_URL` is automatically available on the Supabase platform. Neither secret is bundled into client code.
+- **Audit logging**: Every function writes to `administration.audit_logs` with actor_id, action, target_type, target_id, and metadata.
+- **RLS interaction**: Functions use the service-role key, which bypasses RLS. Authorization is enforced in function code (not relying on RLS alone).
+- **Secrets configuration**: `SUPABASE_SERVICE_ROLE_KEY` must be set via Supabase dashboard (Settings > API). It is NOT configured yet — functions are deployed but will fail at runtime until this key is set.
+
 ## Access control
 
 - Row Level Security enabled on all 34 tables across 8 schemas.

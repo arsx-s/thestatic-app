@@ -66,7 +66,7 @@ serve(async (req) => {
   const { name, platform, identity_public_key, device_public_key, push_token } = body;
 
   const { data: device, error: deviceError } = await supabase
-    .from("member_devices")
+    .from("identity.member_devices")
     .insert({
       member_id: memberId,
       name: name ?? null,
@@ -88,7 +88,7 @@ serve(async (req) => {
 
   // Store push token if provided.
   if (push_token) {
-    await supabase.from("push_tokens").upsert({
+    await supabase.from("notifications.push_tokens").upsert({
       member_id: memberId,
       token: push_token,
       platform: platform ?? "web",
@@ -97,7 +97,7 @@ serve(async (req) => {
   }
 
   // Audit log.
-  await supabase.from("audit_logs").insert({
+  await supabase.from("administration.audit_logs").insert({
     actor_id: memberId,
     action: "register-device",
     target_type: "device",

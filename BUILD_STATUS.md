@@ -67,8 +67,17 @@
 - RLS on all 34 tables
 - 34 RLS policies across all tables
 
-### Supabase backend — Edge Functions (created, not deployed)
-`supabase/functions/` — login-identifier, provision-member, register-device, publish-post (4 functions created; send-message, create-listing, create-order, register-event, submit-report, delete-account, revoke-member not yet created)
+### Supabase backend — Edge Functions deployed to remote project
+- All 11 Edge Functions deployed to remote project `ogibtculbretwbrqvsvw` ("The Static") via `supabase functions deploy --yes`
+- All functions status: ACTIVE, version 1
+- Functions: create-listing, create-order, delete-account, login-identifier, provision-member, publish-post, register-device, register-event, revoke-member, send-message, submit-report
+- All functions use schema-qualified table references (e.g., `membership.members`, `social.posts`, `messaging.encrypted_messages`)
+- All functions authenticate via Bearer token from Authorization header
+- All functions use service-role key (SUPABASE_SERVICE_ROLE_KEY) for server-side operations
+- All functions write audit logs to administration.audit_logs
+- SUPABASE_URL is automatically available on Supabase platform
+- SUPABASE_SERVICE_ROLE_KEY NOT YET CONFIGURED — must be set via Supabase dashboard (Settings > API > service_role key)
+- Functions verified live (respond to HTTP requests, not 404); full runtime testing requires SUPABASE_SERVICE_ROLE_KEY
 
 ### Admin dashboard (`apps/admin`) — Next.js + TypeScript
 - Protected by server-side session + role checks (middleware + API routes)

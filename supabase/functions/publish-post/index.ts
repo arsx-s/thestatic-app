@@ -50,7 +50,7 @@ serve(async (req) => {
 
   // Confirm the member is active.
   const { data: member, error: memberError } = await supabase
-    .from("members")
+    .from("membership.members")
     .select("status")
     .eq("id", authorId)
     .single();
@@ -85,7 +85,7 @@ serve(async (req) => {
   }
 
   const { data: post, error: postError } = await supabase
-    .from("posts")
+    .from("social.posts")
     .insert({
       author_id: authorId,
       audience,
@@ -105,7 +105,7 @@ serve(async (req) => {
   }
 
   // Audit log.
-  await supabase.from("audit_logs").insert({
+  await supabase.from("administration.audit_logs").insert({
     actor_id: authorId,
     action: "publish-post",
     target_type: "post",

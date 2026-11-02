@@ -54,7 +54,7 @@ serve(async (req) => {
 
   const actorId = userData.user.id;
   const { data: roleRow } = await supabase
-    .from("admin_roles")
+    .from("administration.admin_roles")
     .select("role")
     .eq("member_id", actorId)
     .in("role", ["owner", "super_admin", "membership_admin"])
@@ -133,7 +133,7 @@ serve(async (req) => {
   }
 
   // Create an empty profile.
-  await supabase.from("member_profiles").insert({
+  await supabase.from("membership.member_profiles").insert({
     member_id: memberId,
     display_name: display_name || null,
     interests: [],
@@ -141,7 +141,7 @@ serve(async (req) => {
   });
 
   // Audit log.
-  await supabase.from("audit_logs").insert({
+  await supabase.from("administration.audit_logs").insert({
     actor_id: actorId,
     action: "provision-member",
     target_type: "member",
