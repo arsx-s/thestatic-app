@@ -133,7 +133,6 @@ export default function PasswordChangePage() {
               onChange={(e) => setOldPassword(e.target.value)}
               placeholder="Enter your temporary password"
               autoComplete="current-password"
-              required
             />
           </div>
           <div className="flex flex-col gap-2">
@@ -144,7 +143,6 @@ export default function PasswordChangePage() {
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="At least 8 characters, with uppercase, lowercase, number, and symbol"
               autoComplete="new-password"
-              required
             />
           </div>
           <div className="flex flex-col gap-2">
@@ -155,7 +153,6 @@ export default function PasswordChangePage() {
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Confirm your new password"
               autoComplete="new-password"
-              required
             />
           </div>
           {error && (
