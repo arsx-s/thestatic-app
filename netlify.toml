@@ -1,0 +1,104 @@
+# The Static — Monorepo Netlify Configuration
+# Root netlify.toml for pnpm/Turborepo monorepo
+#
+# IMPORTANT: Base directory must be "/" (root) so that pnpm install
+# finds pnpm-workspace.yaml and installs all workspace dependencies.
+#
+# PWA Site (existing: thestaticapp.netlify.app):
+#   Base directory: /
+#   Build command: pnpm --filter @the-static/web run build
+#   Publish directory: apps/web/.next
+#   Environment variables:
+#     NEXT_PUBLIC_SUPABASE_URL
+#     NEXT_PUBLIC_SUPABASE_ANON_KEY
+#
+# Admin Dashboard Site (new Netlify site):
+#   Base directory: /
+#   Build command: pnpm --filter @the-static/admin run build
+#   Publish directory: apps/admin/.next
+#   Environment variables:
+#     NEXT_PUBLIC_SUPABASE_URL
+#     NEXT_PUBLIC_SUPABASE_ANON_KEY
+#     SUPABASE_SERVICE_ROLE_KEY (secret, server-side only)
+
+[build]
+  command = "pnpm --filter @the-static/web run build"
+  publish = "apps/web/.next"
+  function_directory = ".netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[build.runtime]
+  selected = "nodejs"
+  version = "20"
+
+# ============================================================
+# Next.js static assets headers (both PWA and Admin)
+# ============================================================
+
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# ============================================================
+# PWA Service Worker — served from /sw (Next.js route handler)
+# Service-Worker-Allowed: / allows the SW to control the whole origin
+# ============================================================
+
+[[headers]]
+  for = "/sw"
+  [headers.values]
+    Service-Worker-Allowed = "/"
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Content-Type = "application/javascript"
+
+# ============================================================
+# Web App Manifest
+# ============================================================
+
+[[headers]]
+  for = "/manifest"
+  [headers.values]
+    Content-Type = "application/manifest+json"
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# ============================================================
+# PWA Icons — served from /icons (Next.js public/ directory)
+# ============================================================
+
+[[headers]]
+  for = "/icons/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# ============================================================
+# Redirects
+# ============================================================
+
+# Supabase Auth callback — handled by Next.js route
+[[redirects]]
+  from = "/auth/callback"
+  to = "/auth/callback"
+  status = 200
+
+# Ensure /sw is always served dynamically (not cached)
+[[redirects]]
+  from = "/sw"
+  to = "/sw"
+  status = 200
+  conditions = {Method = ["GET"]}
+
+# ============================================================
+# Environment variables (set in Netlify UI, not here):
+#
+# PWA Site:
+#   NEXT_PUBLIC_SUPABASE_URL   — public
+#   NEXT_PUBLIC_SUPABASE_ANON_KEY — public
+#
+# Admin Site:
+#   NEXT_PUBLIC_SUPABASE_URL   — public (frontend)
+#   NEXT_PUBLIC_SUPABASE_ANON_KEY — public (frontend)
+#   SUPABASE_SERVICE_ROLE_KEY  — SECRET (server-side only)
+# ============================================================
