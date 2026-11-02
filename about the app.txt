@@ -1,0 +1,369 @@
+Stories section
+- Horizontal story circles.
+- Your own story first.
+- Stories from people you follow.
+- Viewed and unviewed indicators.
+- Story replies.
+- Music attached to stories.
+- Close Friends equivalent, perhaps called Inner Circle.
+Feed
+- Text posts.
+- Photo posts.
+- Multiple-photo carousels.
+- Videos.
+- Music attached to posts.
+- Likes.
+- Comments.
+- Reposts.
+- Save/bookmark.
+- Share with another Static.
+Feed settings
+- Following feed: chronological posts from accounts you follow.
+- Personal feed: posts from your wider network.
+- No AI-generated feed recommendations.
+- No advertisements.
+- No algorithmic engagement manipulation.
+People
+- Search by username.
+- Search by Static ID.
+- Browse members.
+- Suggested members based on shared interests (not AI).
+- See mutual connections.
+Interests
+- Music.
+- Fashion.
+- Sneakers.
+- Football.
+- Gaming.
+- Photography.
+- Art.
+- Film.
+- Business.
+- Technology.
+- Whatever else the community grows into.
+I particularly like the idea of letting members select interests when they build their profiles.
+What do we call mutual followers?
+I don't want to call them friends either.
+
+Some possibilities:
+Name	Meaning
+In Sync	You both follow each other
+Frequencies	Two people sharing a frequency
+Resonance	A deeper shared connection
+Mutuals	Familiar, informal social terminology
+The Circuit	A network of connected Statics
+
+My favourite is In Sync.
+
+When two Statics follow each other, their relationship becomes In Sync.
+
+Example:
+
+Following → In Sync
+
+It's simple and fits the identity.
+When creating a post:
+- Add caption.
+- Upload photos/videos.
+- Add music.
+- Tag another Static.
+- Choose audience.
+- Allow/disallow comments.
+- Publish.
+Important music detail: Instagram's music library isn't simply a collection of freely usable songs. You need licensed music access or a permitted integration with an external music service. I'd initially support music links and previews through approved providers rather than trying to build a music streaming service.
+Inbox — private messaging
+Inbox structure
+1. Chats.
+2. Message Requests.
+3. Archived Chats.
+Messaging rules
+Situation	Result
+You follow each other	Direct chat
+You follow them, they don't follow you	Request
+They follow you, you don't follow them	Request
+Neither follows the other	No direct chat
+Either person blocks the other	Communication disabled
+
+You can also have:
+- Text messages.
+- Photos and videos.
+- Voice messages.
+- File attachments.
+- Reactions.
+- Reply to specific messages.
+- Disappearing messages.
+- Read receipts (optional).
+- Typing indicators (optional).
+- Voice/video calls (future phase).
+Encryption
+This needs to be genuine end-to-end encryption, not simply a password-protected database.
+
+For private conversations:
+- Encryption happens on the sender's device.
+- Decryption happens on the recipient's device.
+- The server stores ciphertext.
+- The server cannot read the message contents.
+- Each conversation has cryptographic identity keys.
+- Support secure device changes and key verification.
+Static Hub — the commercial and community centre
+A. Static Marketplace
+Members can buy and sell their own things.
+
+Examples:
+- Laptops.
+- Phones.
+- Sneakers.
+- Clothing.
+- Gaming equipment.
+- Collectibles.
+- Art.
+- Other permitted products.
+Marketplace functionality
+- Create listing.
+- Product photographs.
+- Title and description.
+- Price in BDT.
+- Product category.
+- Condition (new, used, like new).
+- Seller profile.
+- Contact seller.
+- Save listing.
+- Search and filters.
+- Mark as sold.
+- Report listing.
+B. Static Store
+This is completely different from the Marketplace.
+
+Static Marketplace: Members sell their own products.
+
+Static Store: The Static sells its official merchandise.
+
+Products could include:
+- The Static T-shirts.
+- Hoodies.
+- Caps.
+- Accessories.
+- Limited drops.
+- Event-exclusive merchandise.
+
+
+
+
+
+
+
+
+C. Static Events
+
+Members can see:
+- Upcoming Static events.
+- Event descriptions.
+- Event dates and venues.
+- Registration.
+- Ticket purchases.
+- Event announcements.
+- Past events.
+- Event photographs.
+- Application phases for joining The Static.
+I'd also introduce an Official Announcements section where only authorized Static administrators can publish announcements.
+Profile — your Static identity
+Every member gets a profile.
+
+Suggested profile structure:
+- Profile picture.
+- Username.
+- Static ID.
+- Display name.
+- Bio.
+- Location (optional).
+- Interests.
+- Music currently listening to.
+- Following.
+- Followers.
+- In Sync count.
+- Posts.
+- Tagged posts.
+- Marketplace listings.
+For example:
+
+static.username
+
+STATIC ID: ST-00001
+MEMBER
+
+
+Just existing somewhere between music and everything else.
+24
+Posts
+180
+Following
+95
+In Sync
+
+
+Music
+Gaming
+Fashion
+Photography
+One additional feature I'd love: Static ID.
+
+Every member gets a permanent unique identifier when approved.
+
+For example:
+
+ST-00001
+
+This makes the membership feel like an actual membership rather than just another social media account.
+Login and membership architecture
+Your idea of not having a conventional sign-up option is excellent for maintaining exclusivity.
+
+I'd structure it like this:
+THE STATIC
+There's more of us than you think.
+Welcome back.
+Static ID / Username
+
+Password
+
+Forgot password?
+LOG IN
+
+
+Not a member?
+
+Apply to become a Static
+
+Membership process
+1. Someone visits The Static website.
+2. They apply to become a Static.
+3. The team reviews their application.
+4. If approved, an administrator creates their account.
+5. The member receives their Static ID and an invitation.
+6. They install the app.
+7. They log in.
+There should be no public account creation endpoint.
+Password security
+One important technical correction: passwords should not be reversibly encrypted.
+
+They should be securely hashed using a modern password-hashing algorithm such as Argon2id.
+
+You should also consider:
+- Rate-limited login attempts.
+- Secure password recovery.
+- Optional passkeys.
+- Two-factor authentication.
+- Device/session management.
+- Secure storage of cryptographic keys on the device.
+And don't forget: E2EE introduces a recovery problem. If someone loses their phone and their encryption keys, recovering their account should not automatically mean the server can decrypt their old conversations.
+
+A recovery key or secure device-transfer system will be necessary.
+4. The privacy question — no data collection
+I love the intention, but we need to distinguish between two things.
+
+No unnecessary data collection and no data existing on the server are not the same.
+
+Your app needs to store certain information to function.
+Information	Does the system need it?
+Static ID	Yes
+Username	Yes
+Password hash	Yes
+Posts	Yes
+Profile information	Yes
+Following relationships	Yes
+Marketplace listings	Yes
+Private message contents	No readable server copy
+Advertising profiles	No
+Third-party tracking	No
+Behavioural analytics	No
+AI recommendation profiling	No
+
+Here's the architecture I'd aim for:
+Privacy-first design
+- No advertising SDKs.
+- No third-party tracking.
+- No selling member information.
+- No behavioural profiling.
+- Minimal server logs with defined retention.
+- Encrypted database storage and backups.
+- E2EE for private messages.
+- Transparent privacy policy.
+- Member-controlled account deletion.
+What technology should you use?
+This is where I'd make some careful decisions. You're building for both iOS and Android, and you don't want two separate applications to maintain.
+
+My recommended stack:
+The Static — technical architecture
+Mobile application
+
+Recommended
+
+React Native + Expo + TypeScript
+
+One shared codebase for iOS and Android.
+
+Backend
+Supabase + PostgreSQL
+
+Authentication, database, APIs, real-time events and storage.
+
+Encryption
+Audited E2EE implementation
+
+Client-side encryption for private messaging. Never invent cryptography.
+
+Media storage
+Private object storage
+
+Photos, videos, thumbnails and controlled media delivery.
+
+Administration
+Separate private admin dashboard
+
+Membership approvals, reports, events, marketplace and store management.
+I'd give administrators these capabilities:
+Section	Admin functionality
+Members	Approve, suspend, remove
+Applications	Review new applications
+Posts	Review reported content
+Marketplace	Remove fraudulent listings
+Store	Add products and manage orders
+Events	Publish and manage events
+Announcements	Official community updates
+Roles	Assign admin permissions
+Security	Manage access and security incidents
+
+Very important: administrators should not automatically have access to members' private encrypted conversations.
+Development roadmap
+
+The foundation
+Build first
+- Login and membership authentication.
+- Member profiles.
+- Following system.
+- In Sync relationships.
+- Text and photo posts.
+- Basic feed.
+- Stories.
+- Basic notifications.
+  
+ — Communication
+- E2EE messaging.
+- Message requests.
+- Media sharing.
+- Voice messages.
+- Device verification and recovery.
+  
+— The Static Hub
+- Static Marketplace.
+- Static Store.
+- Static Events.
+- Event registration.
+- Admin dashboard.
+  
+— Advanced features
+- Video posts.
+- Music integrations.
+- Voice/video calls.
+- Encrypted backups.
+- Advanced marketplace features.
+- Performance and security improvements.

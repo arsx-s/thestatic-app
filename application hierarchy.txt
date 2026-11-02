@@ -1,0 +1,90 @@
+
+THE STATIC APP
+│
+├── 00. AUTHENTICATION
+│   ├── Login
+│   ├── Forgot Password
+│   ├── Account Recovery
+│   ├── Device Verification
+│   └── Apply to Become a Static (Website)
+│
+├── 01. HOME
+│   ├── Stories
+│   ├── Following Feed
+│   ├── Chronological Feed
+│   ├── Posts
+│   ├── Comments
+│   ├── Likes
+│   ├── Reposts
+│   └── Saved Posts
+│
+├── 02. DISCOVER
+│   ├── Search Members
+│   ├── Search by Static ID
+│   ├── Interests
+│   ├── Suggested Members
+│   ├── Following
+│   └── In Sync
+│
+├── 03. CREATE
+│   ├── Text Post
+│   ├── Photo Post
+│   ├── Video Post
+│   ├── Music Attachment
+│   ├── Story
+│   └── Audience Controls
+│
+├── 04. INBOX
+│   ├── Chats
+│   ├── Message Requests
+│   ├── Archived Chats
+│   ├── Encrypted Messaging
+│   ├── Media Sharing
+│   ├── Voice Messages
+│   └── Disappearing Messages
+│
+├── 05. STATIC HUB
+│   ├── STATIC MARKETPLACE
+│   │   ├── Browse Listings
+│   │   ├── Categories
+│   │   ├── Search
+│   │   ├── Product Details
+│   │   ├── Create Listing
+│   │   ├── My Listings
+│   │   └── Saved Listings
+│   │
+│   ├── STATIC STORE
+│   │   ├── Merchandise
+│   │   ├── Product Details
+│   │   ├── Collections
+│   │   └── Orders
+│   │
+│   └── STATIC EVENTS
+│       ├── Upcoming Events
+│       ├── Event Details
+│       ├── Registration
+│       ├── Tickets
+│       ├── Announcements
+│       └── Application Phases
+│
+├── 06. PROFILE
+│   ├── My Profile
+│   ├── Edit Profile
+│   ├── My Posts
+│   ├── Tagged Posts
+│   ├── My Interests
+│   ├── My Listings
+│   ├── Followers
+│   ├── Following
+│   └── In Sync
+│
+└── 07. SETTINGS
+    ├── Privacy
+    ├── Security
+    ├── Encryption Keys
+    ├── Active Devices
+    ├── Blocked Members
+    ├── Notifications
+    ├── Account Recovery
+    ├── Delete Account
+    └── About The Static

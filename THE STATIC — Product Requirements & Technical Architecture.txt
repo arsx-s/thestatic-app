@@ -1,0 +1,2018 @@
+THE STATIC — Product Requirements & Technical Architecture
+THE STATIC
+There's more of us than you think.
+Product direction approved
+
+Decision	Final specification
+Platform	iOS + Android
+Access	Approved members only
+Registration	Admin-issued accounts
+Privacy	End-to-end encryption wherever applicable
+Following	Mutual following creates In Sync
+Social model	Private member network
+Feed	Chronological, no AI
+Advertising	None
+Monetization	Store, marketplace, events
+Development	Full architecture
+Interface	Dark, underground, minimalist
+
+
+1. First, let's define what "everything encrypted" means
+I want to respect your maximum-privacy decision without making promises that the technology cannot deliver.
+
+We'll establish this rule:
+
+The server should never need to read the contents of members' private or restricted content.
+
+That includes:
+- Private messages.
+- Group conversations.
+- Posts.
+- Stories.
+- Private photographs and videos.
+- Restricted-audience content.
+- Private profile information.
+- Private drafts.
+The server stores encrypted content and distributes it to authorized devices.
+
+However, there is a distinction between encryption and metadata.
+
+For example, the server may still need to know that an encrypted object belongs to a particular feed, or that an account is authorized to retrieve it. We'll minimize that information, encrypt sensitive metadata where practical, and document unavoidable exposure.
+Our encryption model
+Content	Protection
+Direct messages	E2EE
+Group messages	E2EE
+Posts	Client-side encryption
+Stories	Client-side encryption
+Photos/videos	Encrypted before upload
+Private profiles	Encrypted fields
+Marketplace descriptions	Encrypted at rest and delivered to authorized members
+Store catalogue	Encrypted at rest; members-only access
+Events	Encrypted at rest; members-only access
+Passwords	Argon2id password hashing
+Network communication	TLS
+
+One major trade-off: if the server cannot read posts, it cannot perform ordinary server-side content search, content recommendations or automated moderation.
+
+We'll use client-side search where possible, user reports with explicit disclosure of the reported content, and administrative review without a universal decryption backdoor.
+
+For group encryption, we'll evaluate the Messaging Layer Security (MLS) standard, RFC 9420. For direct messaging, we'll evaluate established audited implementations rather than writing a cryptographic protocol ourselves.
+2. The finalized product hierarchy
+The application will have six primary navigation destinations and two supporting systems.
+THE STATIC
+MEMBERS-ONLY DIGITAL NETWORK
+
+01
+Home
+Feed and stories
+
+02
+Discover
+Members and interests
+
+03
+Create
+Posts and stories
+
+04
+Inbox
+Private messaging
+
+05
+Static Hub
+Market, Store, Events
+
+06
+Profile
+Member identity
+
+
+
+Supporting systems
+Not main navigation
+Administration dashboard
+
+Identity and encryption infrastructure
+
+
+Final functional specifications
+Module	Required functionality
+Home	Feed, stories, comments, likes, saves, reposts
+Discover	Member search, interests, profiles
+Create	Text, photos, videos, music attachments
+Inbox	E2EE chats, requests, media, voice messages
+Marketplace	Member-to-member buying and selling
+Store	Official Static merchandise
+Events	Events, tickets, registrations, application phases
+Profile	Static ID, bio, interests, posts, connections
+Settings	Privacy, devices, recovery, account deletion
+
+The connection rules
+We're retaining Instagram's familiar following model.
+- A follows B: A follows B.
+- B follows A: B follows A.
+- Both follow each other: they become In Sync.
+- One-sided following: no In Sync status.
+- Messaging between mutual followers: direct conversation.
+- Messaging without mutual following: message request, subject to the recipient's settings.
+- Blocked accounts: no following, messaging or profile interaction.
+One privacy detail: users should be able to choose whether their profile is discoverable to all members or only people with whom they share an existing connection.
+Audience permissions
+Every post and story should have an audience selector:
+1. Followers.
+2. In Sync.
+3. All active Statics.
+4. Custom audience.
+Each item receives its own encryption key and audience authorization. Changing an audience affects future access, not copies already downloaded by recipients.
+
+For stories, the default expiry is 24 hours. Expiry removes the server's stored encrypted object according to the retention policy, but cannot guarantee that a recipient hasn't saved or screenshotted it.
+3. Technical architecture
+This is my proposed production architecture.
+System architecture
+iOS / Android
+React Native · Expo · TypeScriptLocal database · Encryption · Key management
+TLS · Authenticated API
+Backend services
+Identity
+Membership and authentication
+Social
+Feed and relationships
+Messaging
+Ciphertext relay
+Commerce
+Market and Store
+Events
+Registration and tickets
+Notifications
+Minimal push signals
+
+
+
+Infrastructure
+PostgreSQL
+
+Encrypted object storage
+
+Redis / real-time delivery
+
+Key and access management
+
+
+Logical architecture. Each service will have independently defined permissions and security boundaries.
+Recommended technology choices
+Layer	Technology
+Mobile	React Native
+Framework	Expo with custom development builds
+Language	TypeScript
+Backend	NestJS (Node.js)
+Database	PostgreSQL
+Database access	Prisma or equivalent typed ORM
+Real-time delivery	WebSockets
+Cache / queues	Redis
+Media	S3-compatible object storage
+Local database	SQLite with encrypted sensitive storage
+Device secrets	iOS Keychain / Android Keystore
+Push	APNs and Firebase Cloud Messaging
+Admin dashboard	Next.js
+Hosting	Cloud infrastructure in a suitable nearby region
+
+Why NestJS rather than making the entire backend dependent on a managed social platform?
+
+Because The Static has unusual security requirements. I want explicit control over authorization, membership, encryption workflows, data retention and administrative access.
+
+We can still use managed infrastructure for hosting and storage without handing over the entire application's security model.
+Mobile security
+The application should use:
+- Native secure storage for cryptographic keys.
+- Hardware-backed key protection where available.
+- Encrypted local message and media databases.
+- Automatic screen locking.
+- Biometric app unlock as an option.
+- Session revocation.
+- Device registration.
+- Key verification.
+- Secure key rotation.
+Expo SecureStore is useful for small secrets, but it isn't a complete encrypted database or an E2EE implementation. React Native's security documentation also warns against storing secrets in ordinary AsyncStorage. 
+Expo documentation+2
+
+
+For that reason, we should use Expo with custom native builds, rather than assuming the standard Expo Go environment will support every cryptographic requirement.
+4. The encryption architecture — the most important engineering decision
+I would divide encryption into four layers.
+
+Layer A: Identity
+
+Every member has:
+- A permanent Static ID.
+- An account identity key.
+- One or more device keys.
+- Signed device registration.
+- A recovery mechanism.
+Layer B: Direct messaging
+
+Use an established audited E2EE protocol implementation with forward secrecy and post-compromise security.
+
+Layer C: Group communication
+
+Evaluate MLS (RFC 9420). It is an IETF standard designed for asynchronous group encryption, including membership changes and forward secrecy. 
+RFC Editor+1
+
+
+Layer D: Social content
+
+Use client-side envelope encryption:
+1. The member creates content.
+2. The device generates a random content encryption key.
+3. The content is encrypted locally.
+4. The key is securely distributed to authorized members/devices.
+5. The server stores the ciphertext.
+6. Authorized recipients decrypt it locally.
+The hard engineering problem is changing audiences when followers join or leave. We need a tested key-distribution and revocation design, not a homemade encryption shortcut.
+Security requirement
+No production release should claim Signal-level security until the complete implementation has undergone independent cryptographic and application security audits.
+5. Database and data ownership
+I want the backend organized into independent domains so the social network doesn't become one giant database table.
+
+These are the core entities.
+
+
+
+-- MEMBERSHIP
+members
+  id
+  static_id
+  username
+  password_hash
+  status
+  role
+  created_at
+
+member_profiles
+  member_id
+  encrypted_display_name
+  encrypted_bio
+  encrypted_interests
+  profile_visibility
+
+-- DEVICE AND CRYPTOGRAPHY
+member_devices
+  id
+  member_id
+  identity_public_key
+  device_public_key
+  device_status
+
+key_packages
+  id
+  member_id
+  device_id
+  public_key_package
+  created_at
+
+-- SOCIAL RELATIONSHIPS
+follows
+  follower_id
+  following_id
+  created_at
+
+blocks
+  blocker_id
+  blocked_id
+
+-- SOCIAL CONTENT
+posts
+  id
+  author_id
+  encrypted_content
+  encrypted_media_reference
+  audience_reference
+  created_at
+
+stories
+  id
+  author_id
+  encrypted_content
+  expires_at
+
+post_interactions
+  id
+  post_id
+  member_id
+  interaction_type
+
+comments
+  id
+  post_id
+  author_id
+  encrypted_content
+
+-- MESSAGING
+conversations
+  id
+  conversation_type
+  encryption_group_id
+
+conversation_members
+  conversation_id
+  member_id
+
+encrypted_messages
+  id
+  conversation_id
+  sender_device_id
+  ciphertext
+  created_at
+
+message_requests
+  id
+  sender_id
+  recipient_id
+  encrypted_payload
+  status
+
+-- COMMERCE
+marketplace_listings
+  id
+  seller_id
+  encrypted_listing
+  status
+
+store_products
+  id
+  encrypted_product_data
+  status
+
+store_orders
+  id
+  member_id
+  encrypted_order_data
+  status
+
+-- EVENTS
+events
+  id
+  encrypted_event_data
+  status
+
+event_registrations
+  id
+  event_id
+  member_id
+  encrypted_registration
+
+-- ADMINISTRATION
+applications
+  id
+  application_status
+
+moderation_reports
+  id
+  reporter_id
+  encrypted_evidence
+  status
+
+admin_audit_logs
+  id
+  admin_id
+  action
+  created_at
+
+
+This is a logical schema, not a migration-ready database design. For example, the actual implementation will need foreign keys, indexes, uniqueness constraints, transactional operations, retention policies and carefully designed authorization rules.
+
+An important distinction: Static IDs, usernames, follow relationships and some delivery metadata will necessarily be available to parts of the backend. We should minimize that exposure rather than falsely claim every database field is invisible to the server.
+How commerce will work with encryption
+There are some interesting challenges here.
+
+For Marketplace:
+- Listings are encrypted before upload.
+- Member devices download and decrypt listings.
+- Search and filtering happen on the device.
+- Contact between buyer and seller uses encrypted messaging.
+For Static Store:
+- Official products are published as encrypted catalogue entries.
+- Members decrypt them locally.
+- Orders are encrypted for authorized fulfilment staff.
+- Payment processing is handled separately.
+For Events:
+- Event information is encrypted for active members.
+- Registration information is encrypted for authorized event organizers.
+- Ticket validation uses signed, revocable tickets rather than exposing private member information.
+For the first release, I recommend no in-app payment processing. Build the catalogue, orders and registration workflows first.
+6. Authentication and membership
+The membership system deserves its own design.
+Membership lifecycle
+1. Application
+   Person applies through The Static website.
+2. Human review
+   Authorized members of the team review the application.
+3. Approval
+   Admin approves membership and provisions an account.
+4. Invitation
+   Member receives their Static ID and initial credentials securely.
+5. Device registration
+   Member logs in and generates their cryptographic device identity.
+6. Active membership
+   Member can access the social network.
+
+There will be no public signup endpoint.
+Account rules
+- Every Static ID is unique and permanent.
+- Username changes are permitted under defined rules.
+- Suspended members cannot access the network.
+- Revoked devices lose future access.
+- Removed members lose access to future restricted content.
+- Account deletion removes associated content and data according to the retention policy and applicable legal requirements.
+Password recovery and encryption recovery are separate systems. An administrator must never be able to reset someone's password and thereby gain access to their encrypted conversations.
+7. Administration dashboard
+The dashboard will be a separate web application, not a hidden screen inside the mobile app.
+THE STATIC / CONTROL
+Admin only
+
+--
+Active members
+--
+Pending applications
+--
+Open reports
+--
+Upcoming events
+
+
+Management
+- Membership and applications
+- Account suspension and removal
+- Events and registrations
+- Merchandise and orders
+- Marketplace reports
+- Content reports
+- Admin permissions
+- Security audit logs
+
+Admin permission levels
+Role	Access
+Super Admin	System configuration and all admin operations
+Membership Admin	Applications and member accounts
+Community Moderator	Reports and community safety
+Store Manager	Merchandise and orders
+Event Manager	Events and registrations
+
+Every administrative action should be audited. Admins should only receive the permissions needed for their role.
+
+8. Privacy policy and non-negotiable principles
+These should become engineering requirements, not merely marketing statements.
+1. No advertisements.
+2. No advertising trackers.
+3. No selling member information.
+4. No AI features.
+5. No AI-generated feeds.
+6. No behavioural recommendation engine.
+7. No third-party analytics by default.
+8. No readable server-side copies of E2EE content.
+9. No administrator backdoor to private conversations.
+10. No unnecessary collection of device or location information.
+11. No message content in push notifications.
+12. Clear account and data deletion procedures.
+One important platform limitation: Apple's App Store requires user-generated-content applications to provide objectionable-content filtering, reporting, blocking and a way to contact the developer. Account deletion must also be supported in the app. We can build human-led moderation and user-submitted reports, but we cannot promise a completely unmoderated publishing platform. 
+Apple Developer+1
+
+
+For E2EE reports, a member can voluntarily submit a decrypted copy of the relevant content to moderators. That does not grant moderators access to everyone's private conversations.
+9. Development plan
+Although we're designing the entire application, I recommend building and releasing it in controlled stages.
+Stage	Deliverable
+0	Product specification, UI system and threat model
+1	Authentication, membership and device identities
+2	Profiles, following, In Sync and encrypted content
+3	Stories, feed and notifications
+4	E2EE messaging and message requests
+5	Marketplace, Store and Events
+6	Administration dashboard
+7	Security audits, performance and app-store release
+
+The entire architecture will be documented from Stage 0. Later stages won't be improvised additions.
+Release acceptance requirements
+Before calling the first production release ready:
+- [ ] iOS and Android builds work.
+- [ ] Public registration is disabled.
+- [ ] Only approved members can authenticate.
+- [ ] Device identities and key recovery work.
+- [ ] Posts and media are encrypted before upload.
+- [ ] Audience restrictions are enforced cryptographically.
+- [ ] Messaging passes independent security review.
+- [ ] Following and In Sync behave correctly.
+- [ ] Blocking and reporting work.
+- [ ] Account deletion works.
+- [ ] No sensitive content appears in application logs.
+- [ ] No advertising or tracking SDKs are included.
+- [ ] Backup and restoration procedures are tested.
+10. Five engineering decisions we must preserve
+These are particularly important.
+
+1. No custom cryptography.
+
+Use established cryptographic protocols and implementations. Security audits are mandatory.
+
+2. No plaintext server-side content processing.
+
+No server-side AI, content indexing or media processing that requires decrypting private content.
+
+3. No hidden administrator access.
+
+Administrators manage membership and operations, not private conversations.
+
+4. No dependency on one giant backend service.
+
+Keep identity, social, messaging, commerce and events separated logically.
+
+5. Encryption is part of the foundation.
+
+Don't build a normal application first and promise to make it private later.
+
+repository structure:
+
+the-static/
+│
+├── apps/
+│   ├── mobile/
+│   │   ├── app/
+│   │   │   ├── (auth)/
+│   │   │   ├── (tabs)/
+│   │   │   │   ├── home/
+│   │   │   │   ├── discover/
+│   │   │   │   ├── create/
+│   │   │   │   ├── inbox/
+│   │   │   │   ├── hub/
+│   │   │   │   └── profile/
+│   │   │   └── settings/
+│   │   ├── components/
+│   │   ├── features/
+│   │   ├── hooks/
+│   │   ├── services/
+│   │   ├── crypto/
+│   │   └── assets/
+│   │
+│   └── admin/
+│       ├── dashboard/
+│       ├── members/
+│       ├── applications/
+│       ├── moderation/
+│       ├── marketplace/
+│       ├── store/
+│       └── events/
+│
+├── services/
+│   ├── api/
+│   ├── identity/
+│   ├── social/
+│   ├── messaging/
+│   ├── media/
+│   ├── commerce/
+│   ├── events/
+│   └── notifications/
+│
+├── packages/
+│   ├── shared-types/
+│   ├── design-system/
+│   ├── validation/
+│   ├── crypto-interface/
+│   └── api-client/
+│
+├── infrastructure/
+│   ├── database/
+│   ├── storage/
+│   ├── deployment/
+│   └── monitoring/
+│
+├── docs/
+│   ├── PRODUCT_REQUIREMENTS.md
+│   ├── APP_HIERARCHY.md
+│   ├── TECHNICAL_ARCHITECTURE.md
+│   ├── ENCRYPTION_ARCHITECTURE.md
+│   ├── DATABASE_SCHEMA.md
+│   ├── API_SPECIFICATION.md
+│   ├── UI_UX_GUIDELINES.md
+│   ├── SECURITY_THREAT_MODEL.md
+│   └── DEVELOPMENT_ROADMAP.md
+│
+└── README.md
+
+# THE STATIC — Implementation Blueprint & Development Specification
+
+Infrastructure decisions finalized
+
+We're locking in the following architecture:
+
+# THE STATIC
+
+ENGINEERING BLUEPRINT · VERSION 1.0
+
+Approved direction
+
+React Native + Expo
+
+iOS and Android · TypeScript
+
+Supabase
+
+PostgreSQL, Auth, Storage, Realtime, Edge Functions
+
+Cloud hosting
+
+Managed infrastructure and encrypted backups
+
+Next.js Admin Dashboard
+
+Separate administrator application
+
+Privacy-first architecture
+
+E2EE, client-side encryption and strict access control
+
+Apple App Store
+
+Google Play
+
+This specification will be the source of truth for development. The important distinction is that the product scope is approved, while individual implementation choices still need engineering validation.
+
+# Part I — Product definition
+
+## 1. Product vision
+
+The Static is a private, members-only social network and digital community ecosystem.
+
+It combines:
+
+- Social networking.
+- Private communication.
+- Member discovery.
+- Peer-to-peer commerce.
+- Official merchandise.
+- Community events.
+- Membership infrastructure.
+
+The application must not become an advertising platform or an AI-driven engagement machine.
+
+### Core product principles
+
+| Principle    | Requirement                                          |
+| ------------ | ---------------------------------------------------- |
+| Exclusivity  | Only approved Statics can log in                     |
+| Identity     | Every member receives a permanent Static ID          |
+| Privacy      | Minimize server-accessible personal information      |
+| Encryption   | Private and restricted content encrypted client-side |
+| Social       | Mutual following creates In Sync                     |
+| Simplicity   | Familiar social interactions                         |
+| Independence | The Static owns its brand, product and data          |
+| Transparency | Explain exactly what is and isn't encrypted          |
+
+## 2. Platform scope
+
+| Platform | Delivery                                                             |
+| -------- | -------------------------------------------------------------------- |
+| iOS      | Native-feeling React Native application                              |
+| Android  | Native-feeling React Native application                              |
+| Admin    | Responsive web dashboard                                             |
+| Website  | Existing Static website, integrated with applications and membership |
+| Backend  | Supabase cloud project                                               |
+
+The mobile application will share one codebase. Platform-specific functionality such as secure storage, media permissions and push notifications will use native integrations.
+
+# Part II — Mobile application specification
+
+## 3. Navigation and screen architecture
+
+The mobile app will use a persistent bottom navigation bar.
+
+THE STATIC
+
+Stories
+
+View all
+
+You
+
+Static A
+
+Static B
+
+Static C
+
+static.member
+
+Post media
+
+A little bit of everything.
+
+Illustrative feed layout
+
+Home · Discover · Create · Inbox · Profile
+
+Static Hub will be accessible through Home's header or a dedicated entry within Discover/Profile initially. I recommend a dedicated Hub destination in a later navigation iteration if commerce and events become heavily used. The first implementation should avoid squeezing seven destinations into a cramped bottom bar.
+
+### Screen inventory
+
+| Screen         | Required screens                                         |
+| -------------- | -------------------------------------------------------- |
+| Authentication | Welcome, login, recovery, device verification            |
+| Home           | Feed, story viewer, comments, post details               |
+| Discover       | Search, members, interests, member profile               |
+| Create         | Composer, media picker, audience selector, preview       |
+| Inbox          | Conversation list, chat, requests, conversation settings |
+| Marketplace    | Browse, listing, details, create/edit listing, saved     |
+| Store          | Catalogue, product, cart, checkout/order history         |
+| Events         | Event list, event details, registration, ticket          |
+| Profile        | Profile, edit, followers, following, In Sync             |
+| Settings       | Privacy, security, devices, notifications, deletion      |
+
+## 4. Authentication and member provisioning
+
+This is a particularly important Supabase design decision.
+
+Supabase Auth natively supports standard authentication identifiers, but your product wants username or Static ID plus password.
+
+I recommend this approach:
+
+1. Admin creates the member through a protected provisioning function.
+2. Supabase Auth creates their underlying account.
+3. The member receives a unique Static ID.
+4. The app accepts Static ID or username.
+5. A protected server-side function resolves that identifier to the internal Auth identity.
+6. The function performs safe credential authentication without exposing the underlying identity.
+7. Supabase issues the normal authenticated session.
+
+The public application must never have permission to create arbitrary accounts.
+
+We must also prevent username enumeration, brute-force attempts and timing-based account discovery.
+
+Important: Do not create a custom password authentication system alongside Supabase Auth. Supabase Auth should remain the authority for password verification, session issuance and token revocation.
+
+### Membership states
+
+Application
+
+Pending
+
+Approved
+
+Eligible
+
+Invited
+
+Provisioned
+
+Active
+
+Access granted
+
+Suspended / Removed
+
+Access revoked
+
+The application website remains the application entry point. There is no mobile signup form.
+
+## 5. Social graph and In Sync
+
+The social graph should use a simple directed relationship model.
+
+Example:
+
+- Arsalan follows Member A.
+- Member A follows Arsalan.
+- Both relationships exist.
+- The app calculates that they are In Sync.
+
+We should not store a separate manually editable friendship relationship.
+
+The database will enforce:
+
+- Unique follower/following pairs.
+- No self-following.
+- No following blocked accounts.
+- No duplicate relationships.
+
+In Sync is a derived state, calculated from two active follow records.
+
+This prevents the following table and friendship table from becoming inconsistent.
+
+## 6. Feed and content publishing
+
+### Post types
+
+| Type             | Support                             |
+| ---------------- | ----------------------------------- |
+| Text             | Yes                                 |
+| Single image     | Yes                                 |
+| Multiple images  | Yes                                 |
+| Video            | Yes                                 |
+| Music attachment | Yes, through permitted integrations |
+| Mixed media      | Yes                                 |
+| Repost           | Yes                                 |
+
+### Audience encryption workflow
+
+For every post:
+
+1. Client generates a random content key.
+2. Client encrypts the post and media.
+3. Client prepares encrypted key envelopes for authorized recipient devices.
+4. Ciphertext and envelopes are uploaded.
+5. Recipients download and decrypt locally.
+6. The app validates audience authorization before rendering.
+
+The recipient-key distribution process must account for new devices, removed followers, membership revocation and deleted accounts.
+
+### Feed ordering
+
+Default:
+
+`created_at DESC`
+
+No engagement-ranked feed.
+
+The backend can return a cursor-based page of authorized encrypted posts. The app decrypts and renders them locally.
+
+A separate Following filter can be provided. We should not use server-side plaintext content search.
+
+## 7. Stories
+
+Stories expire after 24 hours.
+
+Required functions:
+
+- Photo stories.
+- Video stories.
+- Text stories.
+- Music attachments.
+- Replies.
+- Reactions.
+- Story audience selection.
+- Story viewer list.
+- Mute/hide controls.
+
+Story viewer information is sensitive metadata. It should be retained only as long as necessary and disclosed in the privacy policy.
+
+We should also make story downloads and screenshot notifications explicit product decisions rather than pretending the app can reliably prevent screenshots on every device.
+
+## 8. Messaging
+
+Messaging will be an independently secured subsystem.
+
+### Conversation types
+
+- One-to-one.
+- Group conversations (later release).
+- Message requests.
+
+### Required functionality
+
+- Text.
+- Image and video attachments.
+- Voice notes.
+- Reactions.
+- Replies.
+- Message deletion.
+- Disappearing messages.
+- Device management.
+- Safety number / identity verification.
+- Block and report.
+
+### Messaging authorization
+
+Mutual follows create the normal direct messaging entitlement.
+
+Non-mutual conversations can start as message requests if the recipient permits requests.
+
+The recipient must explicitly accept before the conversation becomes a normal chat.
+
+### Delivery architecture
+
+Supabase Realtime will provide delivery signals and notifications, not the cryptographic security itself.
+
+The authoritative message record will be encrypted ciphertext stored in PostgreSQL or a dedicated encrypted message store.
+
+The client will:
+
+- Encrypt before transmission.
+- Validate the sender's device identity.
+- Decrypt locally.
+- Maintain secure local conversation state.
+
+Push notifications should contain only a generic signal such as "New message", never message text, sender details or sensitive previews.
+
+## 9. Music architecture
+
+Music is part of The Static's identity, so I'd make it a first-class attachment type.
+
+Supported functionality:
+
+- Music attached to stories.
+- Music attached to posts.
+- Track title and artist.
+- Cover artwork.
+- External playback link.
+- Authorized preview playback.
+
+We should not download, rehost or stream copyrighted tracks without appropriate licensing.
+
+Start with approved links and metadata integrations. A full licensed music catalogue would be a separate business and legal project.
+
+# Part III — Supabase backend specification
+
+## 10. Supabase project configuration
+
+We'll use Supabase as the backend platform rather than introducing a separate NestJS server immediately.
+
+This changes our previous architecture proposal: Supabase will provide the primary backend services, and Edge Functions will handle privileged operations and custom workflows.
+
+Supabase project
+
+Primary backend
+
+| Service           | Responsibility             |
+| ----------------- | -------------------------- |
+| Auth              | Account authentication     |
+| PostgreSQL        | Application database       |
+| RLS               | Data authorization         |
+| Storage           | Encrypted media            |
+| Realtime          | Live updates               |
+| Edge Functions    | Privileged workflows       |
+| Database triggers | Consistency and automation |
+| Scheduled jobs    | Expiry and maintenance     |
+
+Supabase's services share a PostgreSQL foundation.&#x20;
+
+[image](https://www.google.com/s2/favicons?domain=https://supabase.com\&sz=32)
+
+Supabase Docs+1
+
+### Project environments
+
+We should create three separate Supabase projects.
+
+| Environment | Purpose                               |
+| ----------- | ------------------------------------- |
+| Development | Local development and experimentation |
+| Staging     | Testing with simulated members        |
+| Production  | Real Static members                   |
+
+Never use production member data in development.
+
+### Hosting region
+
+My starting preference is Singapore or another nearby supported cloud region, subject to the region options and actual latency available when the project is created.
+
+We should benchmark from Bangladesh before selecting the production region.
+
+The decision should account for:
+
+- Database latency.
+- Storage latency.
+- Realtime connections.
+- Backup location.
+- Data residency.
+- Cost.
+
+## 11. Supabase database schema
+
+We'll organize the database into logical domains.
+
+```
+
+public/
+│
+├── membership
+│   ├── members
+│   ├── member_profiles
+│   ├── applications
+│   └── membership_audit
+│
+├── identity
+│   ├── devices
+│   ├── identity_keys
+│   ├── signed_prekeys
+│   ├── one_time_prekeys
+│   └── key_packages
+│
+├── social
+│   ├── follows
+│   ├── blocks
+│   ├── mutes
+│   ├── posts
+│   ├── post_key_envelopes
+│   ├── comments
+│   ├── reactions
+│   ├── stories
+│   └── saved_posts
+│
+├── messaging
+│   ├── conversations
+│   ├── conversation_members
+│   ├── encrypted_messages
+│   ├── message_requests
+│   └── delivery_receipts
+│
+├── commerce
+│   ├── marketplace_listings
+│   ├── listing_key_envelopes
+│   ├── store_products
+│   ├── carts
+│   ├── orders
+│   └── order_items
+│
+├── events
+│   ├── events
+│   ├── registrations
+│   └── tickets
+│
+├── notifications
+│   ├── notification_preferences
+│   └── push_tokens
+│
+└── administration
+    ├── admin_roles
+    ├── moderation_reports
+    └── audit_logs
+
+```
+
+The logical domains can initially be implemented in one PostgreSQL schema, with stricter separation through schemas and database permissions where justified.
+
+### Core database rules
+
+Members
+
+- UUID primary keys.
+- Static ID unique.
+- Username unique and normalized.
+- Membership status controlled by trusted backend functions.
+- Role assignment restricted to authorized administrators.
+
+Following
+
+- Composite unique constraint on follower and following.
+- Foreign keys to members.
+- No self-follow.
+- Block-aware relationship validation.
+
+Posts and stories
+
+- UUID identifiers.
+- Author identifier.
+- Encrypted payload.
+- Encryption version.
+- Media references.
+- Audience reference.
+- Creation timestamp.
+- Deletion status.
+
+Messages
+
+- Conversation identifier.
+- Sender device identifier.
+- Encrypted message payload.
+- Protocol/version metadata.
+- Delivery status.
+- Timestamp.
+
+Never store plaintext passwords, private encryption keys or decrypted private message bodies in these tables.
+
+### 12. Row Level Security — mandatory
+
+This is one of the most important parts of the Supabase implementation.
+
+Every table exposed to the mobile client must have carefully designed Row Level Security policies.
+
+Examples of required rules:
+
+| Table            | Access rule                                             |
+| ---------------- | ------------------------------------------------------- |
+| Members          | Only active members can access permitted member records |
+| Profiles         | Respect profile visibility                              |
+| Follows          | Only authorized relationship operations                 |
+| Posts            | Only authorized audiences                               |
+| Stories          | Only eligible story viewers                             |
+| Messages         | Only conversation participants                          |
+| Message requests | Sender and recipient only                               |
+| Marketplace      | Only authorized active members                          |
+| Orders           | Buyer and authorized fulfilment staff                   |
+| Events           | Authorized members and event managers                   |
+| Admin roles      | Never publicly readable or writable                     |
+
+We will also:
+
+- Enable RLS before exposing new tables.
+- Revoke unnecessary table privileges.
+- Keep administrative functions server-side.
+- Use database constraints for invariant rules.
+- Test access using multiple independent user accounts.
+
+Supabase specifically recommends RLS for exposed tables, and its secret keys bypass RLS. Therefore, the secret key must never be placed inside the mobile app or browser.&#x20;
+
+[image](https://www.google.com/s2/favicons?domain=https://supabase.com\&sz=32)
+
+Supabase Docs+1
+
+
+
+### 13. Edge Functions
+
+These are the operations I want to implement as protected Edge Functions.
+
+| Function                 | Purpose                                |
+| ------------------------ | -------------------------------------- |
+| `provision-member`       | Create approved accounts               |
+| `login-identifier`       | Resolve Static ID/username login       |
+| `revoke-member`          | Suspend membership and sessions        |
+| `register-device`        | Register cryptographic device identity |
+| `publish-post`           | Validate and publish encrypted content |
+| `create-story`           | Create encrypted stories               |
+| `send-message`           | Validate and relay ciphertext          |
+| `submit-message-request` | Initiate a restricted conversation     |
+| `create-listing`         | Validate Marketplace listing           |
+| `create-order`           | Create a Store order                   |
+| `register-event`         | Register an event participant          |
+| `submit-report`          | Submit content or account reports      |
+| `delete-account`         | Process account deletion               |
+
+Each function will have an explicit authorization model.
+
+For user operations, validate the caller's JWT and use an RLS-scoped client. Use privileged credentials only for narrowly scoped administrative operations.
+
+Do not turn off JWT verification simply to make a function easier to call.&#x20;
+
+[image](https://www.google.com/s2/favicons?domain=https://supabase.com\&sz=32)
+
+Supabase Docs+1
+
+
+
+## 14. Supabase Storage
+
+We will create separate private buckets:
+
+| Bucket              | Contents                    |
+| ------------------- | --------------------------- |
+| `profile-media`     | Encrypted profile images    |
+| `post-media`        | Encrypted post attachments  |
+| `story-media`       | Encrypted story attachments |
+| `message-media`     | Encrypted chat attachments  |
+| `marketplace-media` | Encrypted listings          |
+| `store-media`       | Encrypted merchandise       |
+| `event-media`       | Encrypted event media       |
+
+All uploads must be encrypted on the client before reaching Storage.
+
+The file structure should use random object identifiers, not usernames or Static IDs.
+
+Example:
+
+```
+post-media/
+    8f/8f3c...random-id.bin
+
+story-media/
+    4a/4a9b...random-id.bin
+
+message-media/
+    7c/7c21...random-id.bin
+```
+
+Private Supabase buckets enforce Storage access policies, and signed URLs can provide time-limited access. However, an ordinary signed URL is not a substitute for E2EE. The ciphertext itself must already be encrypted before it reaches Storage.&#x20;
+
+[image](https://www.google.com/s2/favicons?domain=https://supabase.com\&sz=32)
+
+Supabase Docs+2
+
+
+
+### Media processing
+
+The client should generate:
+
+- Encrypted original image.
+- Encrypted thumbnail.
+- Encrypted video.
+- Encrypted preview.
+
+No server-side image optimizer should receive plaintext private media.
+
+This means we need client-side resizing and compression before encryption.
+
+## 15. Realtime and notifications
+
+Supabase Realtime will handle:
+
+- New post notifications.
+- New message signals.
+- Follow notifications.
+- Story updates.
+- Marketplace changes.
+- Event announcements.
+- Order status updates.
+
+Private channels must be enabled and authorization policies configured.
+
+We should disable public channel access in the production Realtime configuration.
+
+An important detail: Supabase Realtime authorization is checked when a channel is joined, and an already-connected client can retain cached authorization until its JWT expires or is refreshed. Our revocation strategy must therefore include short-lived sessions and explicit disconnect/re-authentication handling.&#x20;
+
+[image](https://www.google.com/s2/favicons?domain=https://supabase.com\&sz=32)
+
+Supabase Docs+1
+
+
+
+# Part IV — Encryption and privacy engineering
+
+## 16. Cryptographic design
+
+This is the area where I would spend the most engineering and review effort.
+
+The implementation must separate:
+
+1. Account authentication.
+2. Device identity.
+3. Message encryption.
+4. Social content encryption.
+5. Media encryption.
+6. Key recovery.
+
+They are not interchangeable.
+
+### Recommended cryptographic evaluation
+
+| Requirement          | Direction                         |
+| -------------------- | --------------------------------- |
+| Direct messaging     | Signal Protocol implementation    |
+| Group messaging      | MLS implementation evaluation     |
+| Content encryption   | Authenticated envelope encryption |
+| Key derivation       | HKDF                              |
+| Symmetric encryption | AES-256-GCM or ChaCha20-Poly1305  |
+| Device identity      | Public/private key pairs          |
+| Passwords            | Supabase Auth password handling   |
+| Local secrets        | Keychain / Android Keystore       |
+
+The Signal `libsignal` repository exposes Java, Swift and TypeScript APIs backed by Rust, but its AGPLv3 licensing, integration requirements and API stability need legal and engineering review before adoption.&#x20;
+
+[image](https://www.google.com/s2/favicons?domain=https://github.com\&sz=32)
+
+GitHub+1
+
+
+
+For group messaging, MLS is a serious candidate, but a protocol standard alone does not mean we have a production-ready implementation.&#x20;
+
+[image](https://www.google.com/s2/favicons?domain=https://www.rfc-editor.org\&sz=32)
+
+RFC Editor+1
+
+
+
+### Key recovery
+
+We need a secure recovery design before launch.
+
+My preferred approach:
+
+- A recovery key generated on the user's device.
+- A recovery process that does not reveal keys to administrators.
+- Device-to-device secure transfer.
+- New device verification.
+- Revocation of lost devices.
+- Key rotation when membership changes.
+
+We should never store plaintext private keys in Supabase.
+
+### Important limitation: content revocation
+
+Suppose someone follows you, receives an encrypted post, and later you remove them.
+
+You can revoke access to future content, but you cannot guarantee that the old content disappears from their device.
+
+The same applies to screenshots, exported files and copies.
+
+Our product documentation must be honest about that.
+
+## 17. Privacy threat model
+
+We need to design against these threats:
+
+| Threat               | Required protection                                   |
+| -------------------- | ----------------------------------------------------- |
+| Database leak        | Encrypted sensitive content, minimal metadata         |
+| Storage leak         | Client-side encrypted files                           |
+| Stolen phone         | Secure device keys, app lock, session revocation      |
+| Malicious member     | Blocking, reporting, authorization checks             |
+| Compromised admin    | Least privilege, audit logs, no E2EE backdoor         |
+| Stolen account       | Secure sessions, recovery and device verification     |
+| Network interception | TLS and authenticated requests                        |
+| Server compromise    | E2EE protects content, minimize exposed metadata      |
+| Malicious update     | Signed builds, release controls and dependency review |
+
+We should also establish an independent security audit before claiming that The Static is a genuinely Signal-level private platform.
+
+# Part V — Static Hub specification
+
+## 18. Static Marketplace
+
+The Marketplace is a peer-to-peer trading platform for members.
+
+### Seller functionality
+
+- Create listing.
+- Upload photographs.
+- Add description.
+- Set price in BDT.
+- Select category.
+- Specify condition.
+- Edit listing.
+- Mark as sold.
+- Delete listing.
+
+### Buyer functionality
+
+- Browse listings.
+- Search and filter.
+- View product details.
+- Save listings.
+- Contact seller.
+- Report fraudulent listings.
+
+### Initial categories
+
+- Electronics.
+- Computers.
+- Gaming.
+- Sneakers.
+- Fashion.
+- Collectibles.
+- Art.
+- Accessories.
+- Other.
+
+### Marketplace transaction model
+
+1. Seller publishes encrypted listing.
+2. Members download and decrypt authorized listings.
+3. Buyer contacts seller.
+4. Buyer and seller agree on transaction.
+5. Transaction is completed independently.
+6. Seller marks listing as sold.
+
+Initial release: no payment custody, escrow or automatic delivery system.
+
+Search trade-off: Because you selected maximum encryption, server-side full-text search over decrypted descriptions is out. Initially, the app can download an encrypted catalogue index and search locally after decryption. That approach will need pagination and caching as the catalogue grows.
+
+We should keep category, price and listing availability private too, unless you explicitly decide to expose those fields to the backend for efficient discovery.
+
+## 19. Static Store
+
+This is the official Static merchandise shop.
+
+### Product functionality
+
+- Product catalogue.
+- Product variants.
+- Sizes.
+- Colours.
+- Limited drops.
+- Product images.
+- Inventory.
+- Cart.
+- Orders.
+- Order history.
+- Fulfilment status.
+
+### Administrative functionality
+
+- Add merchandise.
+- Update product information.
+- Update inventory.
+- Create limited drops.
+- Process orders.
+- Update fulfilment.
+- Cancel orders and issue refunds where applicable.
+
+### Payment architecture
+
+I recommend starting with:
+
+- Cash on delivery, if operationally practical.
+- Approved local payment-provider integration.
+- Payment status verification through trusted server-side callbacks.
+
+Do not store payment card information.
+
+For physical merchandise, external payment-provider processing is generally different from selling digital app features. We'll still check the relevant App Store and Google Play commerce rules before implementing checkout.
+
+## 20. Static Events
+
+The events module is the community's event centre.
+
+### Member experience
+
+- Upcoming events.
+- Event details.
+- Event location.
+- Event dates.
+- Registration.
+- Ticket details.
+- Past events.
+- Event photographs.
+- Official announcements.
+- Application phases.
+
+### Event management
+
+The admin dashboard will support:
+
+- Create event.
+- Edit event.
+- Publish event.
+- Registration capacity.
+- Registration deadline.
+- Ticket types.
+- Registration approval.
+- Attendance management.
+- Cancellation.
+
+### Static membership application phases
+
+These should also be displayed as official announcements, separate from ordinary events.
+
+For example:
+
+`THE STATIC — APPLICATION PHASE 02`
+
+Members can see when the next recruitment period opens without confusing it with ordinary event registrations.
+
+# Part VI — Administration system
+
+## 21. The Static Control
+
+The admin dashboard is a separate Next.js web application.
+
+## STATIC CONTROL
+
+Restricted
+
+Illustrative dashboard structure
+
+Members
+
+Member management
+
+Applications
+
+Membership reviews
+
+Reports
+
+Community safety
+
+Commerce
+
+Market and Store
+
+Events
+
+Event operations
+
+System
+
+Roles and security
+
+### Admin roles
+
+| Role                  | Permissions                      |
+| --------------------- | -------------------------------- |
+| Owner                 | All system configuration         |
+| Super Admin           | Membership and system operations |
+| Membership Admin      | Application review               |
+| Moderator             | Reports and safety               |
+| Store Manager         | Official merchandise             |
+| Marketplace Moderator | Marketplace reports              |
+| Event Manager         | Events and registrations         |
+
+Each role will have explicit permissions, rather than relying on hidden frontend buttons.
+
+### Administrator authentication
+
+- Separate admin access route.
+- Mandatory MFA.
+- Strong session protection.
+- Role-based authorization.
+- Audit logs.
+- No public admin registration.
+- Immediate access revocation when an admin is removed.
+
+### Encrypted content and moderation
+
+The dashboard cannot silently decrypt members' content.
+
+When someone reports a post or message, the reporting member can explicitly submit a decrypted evidence copy to the moderation system. That copy becomes an intentionally disclosed report, with limited authorized access and retention.
+
+# Part VII — Development architecture
+
+## 22. Recommended repository structure
+
+I recommend a monorepo so that mobile, dashboard and shared packages remain consistent.
+
+```
+
+the-static/
+│
+├── apps/
+│   ├── mobile/
+│   │   ├── app/
+│   │   │   ├── (auth)/
+│   │   │   ├── (tabs)/
+│   │   │   │   ├── home/
+│   │   │   │   ├── discover/
+│   │   │   │   ├── create/
+│   │   │   │   ├── inbox/
+│   │   │   │   └── profile/
+│   │   │   ├── hub/
+│   │   │   │   ├── marketplace/
+│   │   │   │   ├── store/
+│   │   │   │   └── events/
+│   │   │   └── settings/
+│   │   ├── src/
+│   │   │   ├── components/
+│   │   │   ├── features/
+│   │   │   ├── services/
+│   │   │   ├── crypto/
+│   │   │   ├── storage/
+│   │   │   └── navigation/
+│   │   ├── assets/
+│   │   └── tests/
+│   │
+│   └── admin/
+│       ├── app/
+│       ├── components/
+│       ├── features/
+│       ├── services/
+│       └── tests/
+│
+├── packages/
+│   ├── shared-types/
+│   ├── design-system/
+│   ├── validation/
+│   ├── api-client/
+│   ├── crypto-core/
+│   └── configuration/
+│
+├── supabase/
+│   ├── migrations/
+│   ├── functions/
+│   │   ├── provision-member/
+│   │   ├── login-identifier/
+│   │   ├── revoke-member/
+│   │   ├── register-device/
+│   │   ├── send-message/
+│   │   ├── publish-post/
+│   │   ├── create-listing/
+│   │   ├── create-order/
+│   │   ├── register-event/
+│   │   └── delete-account/
+│   ├── seed.sql
+│   └── config.toml
+│
+├── docs/
+│   ├── PRODUCT_REQUIREMENTS.md
+│   ├── APP_HIERARCHY.md
+│   ├── TECHNICAL_ARCHITECTURE.md
+│   ├── DATABASE_SCHEMA.md
+│   ├── API_SPECIFICATION.md
+│   ├── ENCRYPTION_SPECIFICATION.md
+│   ├── SECURITY_THREAT_MODEL.md
+│   ├── DESIGN_SYSTEM.md
+│   ├── PRIVACY_POLICY.md
+│   ├── TESTING_STRATEGY.md
+│   └── RELEASE_PLAN.md
+│
+├── .github/
+│   └── workflows/
+│
+├── package.json
+├── pnpm-workspace.yaml
+├── turbo.json
+└── README.md
+
+```
+
+### Development tooling
+
+| Tool           | Purpose                     |
+| -------------- | --------------------------- |
+| TypeScript     | Shared application language |
+| pnpm           | Package management          |
+| Turborepo      | Monorepo orchestration      |
+| Expo           | Mobile framework            |
+| Expo Router    | Navigation                  |
+| TanStack Query | Server state                |
+| Zustand        | Local UI state              |
+| Zod            | Input validation            |
+| Supabase JS    | Backend client              |
+| Next.js        | Admin dashboard             |
+| GitHub Actions | Automated checks            |
+| EAS Build      | iOS and Android builds      |
+
+For Expo, we should use development builds, not rely on Expo Go. Development builds support the native libraries and configuration that a serious encrypted application will need.&#x20;
+
+[image](https://www.google.com/s2/favicons?domain=https://docs.expo.dev\&sz=32)
+
+Expo documentation
+
+
+
+# Part VIII — UI/UX and visual system
+
+## 23. Design specification
+
+The application should have its own design language.
+
+I recommend:
+
+# THE STATIC
+
+VISUAL DESIGN TOKENS · INITIAL PROPOSAL
+
+Void#080808
+
+Carbon#171717
+
+Static Grey#303030
+
+Off-white#F1F0EB
+
+Typography
+
+- Primary: Inter or another carefully selected modern sans-serif.
+- Display: bold editorial typography.
+- Body: readable, neutral sans-serif.
+- Labels: compact uppercase typography.
+
+  Interface principles
+- Dark mode as default.
+- Light mode optional.
+- Subtle borders.
+- Generous spacing.
+- Restrained animations.
+- Minimal icons.
+- No unnecessary gradients.
+
+### Component library
+
+Build reusable components for:
+
+- Buttons.
+- Inputs.
+- Profile avatars.
+- Story circles.
+- Post cards.
+- Media carousels.
+- Music attachment cards.
+- Member badges.
+- In Sync indicators.
+- Message bubbles.
+- Product cards.
+- Event cards.
+- Confirmation dialogs.
+- Bottom sheets.
+- Loading states.
+- Empty states.
+- Error states.
+
+All screens should use shared design tokens rather than individually styled components.
+
+### Accessibility
+
+- Screen-reader labels.
+- Dynamic text scaling.
+- Sufficient contrast.
+- Touch targets suitable for mobile.
+- Reduced-motion support.
+- Keyboard accessibility where applicable.
+
+# Part IX — Testing, security and release
+
+## 24. Testing specification
+
+We should not consider a feature finished simply because it works on one phone.
+
+| Test category | What to test                               |
+| ------------- | ------------------------------------------ |
+| Unit          | Business logic and encryption interfaces   |
+| Integration   | Supabase functions and database operations |
+| RLS           | Unauthorized access attempts               |
+| E2EE          | Encryption, decryption, key changes        |
+| Device        | iOS and Android secure storage             |
+| UI            | Navigation and interaction                 |
+| Performance   | Feed, media, chat                          |
+| Security      | Authentication and authorization           |
+| Recovery      | Lost devices and account recovery          |
+| Regression    | Previously working features                |
+
+### Mandatory security tests
+
+1. Member A cannot retrieve Member B's private conversations.
+2. A blocked member cannot send messages.
+3. A non-member cannot access the application.
+4. A suspended member loses future access.
+5. A revoked device cannot retrieve future encrypted messages.
+6. Unauthorized users cannot retrieve private media.
+7. A database dump does not expose plaintext private content.
+8. A Storage URL leak does not expose decrypted content.
+9. An administrator cannot silently read private chats.
+10. Account deletion removes associated content and access according to the published retention policy.
+
+### Encryption test cases
+
+We need dedicated tests for:
+
+- Key generation.
+- Key rotation.
+- Invalid signatures.
+- Tampered ciphertext.
+- Replayed messages.
+- Device replacement.
+- Multiple-device sessions.
+- Group membership changes.
+- Offline message delivery.
+- Recovery and restoration.
+
+A cryptographic audit must happen before public launch, not after a security incident.
+
+## 25. Deployment specification
+
+### Environments
+
+DEV
+
+Development
+
+Local development, test accounts, disposable data.
+
+STAGING
+
+Staging
+
+Release candidates, security testing, beta members.
+
+PROD
+
+Production
+
+Real members, monitored services, production backups.
+
+### Deployment flow
+
+```
+Developer changes
+       |
+       v
+GitHub branch
+       |
+       v
+Automated tests
+       |
+       v
+Pull request review
+       |
+       v
+Staging deployment
+       |
+       v
+Security and acceptance tests
+       |
+       v
+Production approval
+       |
+       v
+App Store / Google Play release
+```
+
+### Secrets management
+
+These must never be committed to GitHub:
+
+- Supabase secret keys.
+- Database passwords.
+- Signing credentials.
+- Payment-provider secrets.
+- Encryption recovery secrets.
+- Administrative credentials.
+
+The mobile application can contain its Supabase publishable key because that key is not an authorization boundary. RLS is.
+
+The Supabase secret key belongs exclusively in trusted server-side environments.
+
+### Backup policy
+
+- Scheduled database backups.
+- Point-in-time recovery where supported by the chosen plan.
+- Encrypted backup exports.
+- Separate backup access permissions.
+- Periodic restoration tests.
+- Documented disaster recovery procedures.
+
+Database backups and encrypted media backups must be coordinated so that restoring one without the other does not leave the application in an inconsistent state.
+
+## 26. App Store and Google Play requirements
+
+There are some requirements we should design for from the beginning.
+
+Apple App Store
+
+- Developer account.
+- App privacy disclosures.
+- Privacy policy.
+- User-generated-content reporting and blocking.
+- Account deletion within the app.
+- Functional review credentials or an approved review mode.
+- Complete application functionality.
+
+Google Play
+
+- Developer account.
+- Data Safety declaration.
+- Privacy policy.
+- Account deletion and associated web deletion route where applicable.
+- User-generated-content safety controls.
+- Permission disclosures.
+- App signing and release configuration.
+
+Apple specifically requires UGC filtering, reporting, blocking and contact information, and requires account deletion to be available in the app.&#x20;
+
+[image](https://www.google.com/s2/favicons?domain=https://developer.apple.com\&sz=32)
+
+Apple Developer+2
+
+
+
+We'll provide a dedicated reviewer account with controlled test data, without exposing real members' private content.
+
+# Part X — Development roadmap
+
+## 27. Build sequence
+
+This is the order I recommend. Every stage should produce something testable.
+
+## Stage 0 — Specification and design
+
+First priority
+
+- Final product requirements.
+- Screen-by-screen wireframes.
+- Design system.
+- Database ERD.
+- Encryption threat model.
+- Supabase environment setup.
+- Technical feasibility prototypes.
+
+  Stage 1 — Identity and membership
+- Login.
+- Static ID.
+- Admin provisioning.
+- Member profiles.
+- Device identities.
+- Account recovery.
+- Member approval workflow.
+
+  Stage 2 — Social network
+- Following.
+- In Sync.
+- Feed.
+- Posts.
+- Comments.
+- Reactions.
+- Stories.
+- Encrypted media.
+
+  Stage 3 — Messaging
+- E2EE direct messaging.
+- Message requests.
+- Media attachments.
+- Voice messages.
+- Multi-device support.
+- Recovery and revocation.
+
+  Stage 4 — Static Hub
+- Marketplace.
+- Store.
+- Orders.
+- Events.
+- Registration.
+- Tickets.
+
+  Stage 5 — Administration
+- Dashboard.
+- Membership management.
+- Moderation.
+- Commerce management.
+- Event management.
+- Security audit logs.
+
+  Stage 6 — Release
+- Performance testing.
+- Independent security audit.
+- Beta testing.
+- App Store submission.
+- Google Play submission.
+- Production launch.
+
+I would not promise a calendar deadline until the encryption prototype has been validated. That is the biggest uncertainty in the project.
+
+## 28. Definition of done
+
+A feature is complete only when:
+
+- Its UI works.
+- Its API works.
+- Its database schema is migrated.
+- RLS policies are tested.
+- Error states are handled.
+- Loading states are handled.
+- Accessibility has been checked.
+- Security requirements are satisfied.
+- Documentation is updated.
+- Tests pass on both platforms.
+
+No feature should be marked complete just because the frontend looks finished.
+
+# Part XI — Decisions still requiring approval
+
+The main architecture is settled, but these decisions should not be silently guessed during development.
+
+| Decision                 | Proposed default                                     |
+| ------------------------ | ---------------------------------------------------- |
+| Member discoverability   | Searchable by username, optional discoverability     |
+| Profile visibility       | Private by default                                   |
+| Default post audience    | Followers                                            |
+| Default story audience   | In Sync                                              |
+| Group messaging          | Include after secure DM release                      |
+| Multi-device support     | Yes, with device verification                        |
+| Message history recovery | User-controlled recovery key                         |
+| Account recovery         | Recovery key plus optional verified recovery contact |
+| Marketplace payments     | No payment custody initially                         |
+| Official Store payments  | Approved local payment provider                      |
+| Content moderation       | Human-led reports and review                         |
+| Music                    | Licensed integrations and external links             |
+| Advertising              | None                                                 |
+| AI                       | None                                                 |
+
+### Three technical constraints I want to highlight
+
+1\. Truly universal encryption has consequences.
+
+If every marketplace listing, event, profile and post is encrypted to individual members, search and indexing become more complicated. We must decide which discovery metadata can be exposed and which must remain encrypted.
+
+2\. Supabase is infrastructure, not an automatic security guarantee.
+
+Its Auth, Storage, Realtime and RLS features give us useful building blocks, but the actual security comes from how we configure and test them.
+
+3\. Account recovery is a product feature, not an afterthought.
+
+If someone loses every registered device and their recovery key, we may not be able to recover their encrypted history. That's the price of a genuine zero-knowledge recovery design.
+
+# Part XII — Final project specification
+
+# THE STATIC
+
+## Private social infrastructure.
+
+Approved product
+
+Architecture direction finalized
+
+- Members-only social network.
+- iOS and Android.
+- Supabase backend.
+- Cloud hosting.
+- Maximum practical E2EE.
+- Mutual following / In Sync.
+- Social feed and stories.
+- Private messaging.
+- Static Marketplace.
+- Static Store.
+- Static Events.
+- Independent admin dashboard.
+- No advertising or AI.
+
+  Engineering standard
+- TypeScript.
+- React Native + Expo.
+- PostgreSQL.
+- Supabase Auth.
+- Supabase Storage.
+- Supabase Realtime.
+- Supabase Edge Functions.
+- Next.js administration.
+- Independent security review.
+
+  Development philosophy
+
+Build the complete architecture, validate encryption early, implement in stages, and never sacrifice security to ship faster.
+

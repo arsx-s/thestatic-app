@@ -1,0 +1,202 @@
+1. Brand
+Name: THE STATIC. It is always written in capitals.
+Tagline (exact): THERE’S MORE OF US THAN YOU THINK.
+Supporting line: Different interests. Different frequencies. Same signal.
+Invitation: Find your frequency.
+Main button text: BECOME A STATIC.
+First edition: ISSUE/001.
+Place: Chattogram, Bangladesh.
+Event name (planned, not scheduled): Static Sessions.
+Instagram: @thestatic.ctg.
+Voice: direct, slightly playful, honest, welcoming. Short sentences. Slang only when it fits.
+Never: invent member counts, events, partners, testimonials or social proof. Don’t call the group a family. Mark anything not yet real as PLANNED.
+2. The slash motif
+
+The “/” is the signature device. Use it in labels, numbering and metadata, never in body copy.
+
+Section labels: 01 / WHAT IS THE STATIC?
+Edition and frequency markers: ISSUE/001, FREQ./001, SESSION/A
+Card labels: NAME /, STATIC ID /, ZONE /
+Card number: /001
+Footer and meta rows: THE STATIC / ISSUE/001 / CHATTOGRAM, BANGLADESH
+3. Colour
+
+The palette is strictly monochrome and has no gradients anywhere. Depth comes from flat fills, borders, solid offset shadows, grayscale imagery and noise.
+
+Token	Value	Use
+bg	
+#070707	Page and card ground
+ink	
+#ececec	Main text, buttons, active states
+mid	
+#8b8b8b	Labels, metadata, secondary text
+line	
+#2b2b2b	Hairlines, borders, grid gaps
+body copy	
+#c9c9c9	Paragraphs on dark
+soft copy	
+#bdbdbd	Card descriptions
+input and chip border	
+#3a3a3a	Form fields, unlit bars
+pure black	#000	Input fill, button text on light
+white	#fff	Error states, hover inversions, CTA ring
+solid shadow	
+#4a4a4a	CTA offset shadow
+
+Overlays and surfaces (all flat):
+
+Video shade: rgba(0,0,0,.6)
+Panels: rgba(7,7,7,.86)
+Cards in grids: rgba(7,7,7,.85)
+Row backgrounds: rgba(7,7,7,.55)
+Dock and player: rgba(7,7,7,.92)
+ID card image overlay: rgba(7,7,7,.55)
+
+The one exception: the ID card background is your teal image. It breaks the palette on purpose, at your request.
+
+4. Typography
+
+Fonts load from Google Fonts with system fallbacks, so text is readable before they arrive.
+
+Role	Font	Weight
+Display	Space Grotesk	700
+Body	Inter	400 and 500
+Utility	IBM Plex Mono	500 (400 also loaded)
+
+Display style: uppercase, tight tracking from -0.02em to -0.055em, line-height between 0.84 and 1.1.
+
+Element	Size and spacing
+Wordmark	13.2vw, line-height .84, tracking -.055em, never wraps
+Section headings	clamp(2.2rem, 7.2vw, 6rem), line-height .95, tracking -.04em
+Tagline	clamp(1.05rem, 3.4vw, 2.3rem), line-height 1.1, max 22 characters wide
+Lead line	clamp(1.5rem, 4vw, 3rem), line-height 1.1
+Manifesto lines	clamp(1.9rem, 6.4vw, 5rem), line-height 1
+Frequency rows	clamp(1.4rem, 4.6vw, 3.2rem), line-height 1
+Session titles	1.5rem
+
+Body (Inter):
+
+Base text: 1rem with line-height 1.6.
+Intro copy: 1.06rem in 
+#c9c9c9, max width 52 characters.
+Hero bio: .95rem, line-height 1.65, max width 62 characters.
+
+Labels (IBM Plex Mono): .72rem, weight 500, uppercase, letter-spacing .14em. On the ID card, labels are 12px and the footer line is 11px.
+
+Rules: never distort or glitch body copy or controls. Distortion lives only in background layers.
+
+5. Layout and spacing
+Page padding: clamp(1.25rem, 5vw, 4rem) on the sides.
+Section padding: clamp(5rem, 14vh, 9rem) top and bottom.
+Content max width: 1280px.
+Hero: minimum 100svh, content pinned to the bottom, 84px top padding to clear the fixed controls.
+Grids: cards sit in 1px gaps over a 
+#2b2b2b background, which gives hairline dividers. They auto-fit from 200px to 250px columns.
+Radius: pills and chips are 99px. Panels and inputs are 10px. The dock is 22px. The player card is 16px. The small logo box is 12px. The ID card is 28px.
+Borders: always 1px in 
+#2b2b2b, or 
+#3a3a3a on interactive fields.
+Mobile: the layout is built for 360px upward, with safe-area padding at the bottom and svh heights.
+6. Atmosphere layers
+Scroll video: one video across the whole page. Frame one is at the top and the last frame is at the very bottom. It is greyscale with contrast 1.15, under the shade overlay. It re-encodes as all-intra at 480px wide and 15fps so scrubbing stays smooth. It cannot be seen at all if the video fails, and the page still works.
+Scan lines: a 1px line every 4px at black .35, with the layer at .5 opacity.
+Grain: monochrome fractal noise at .08 opacity, jittering in 4 steps over .5s.
+Reduced motion: grain and marquee stop, reveals appear instantly, scroll is not scrubbed, and transitions shrink to near zero.
+7. Components
+
+Primary button (BECOME A STATIC)
+
+Pill, minimum height 56px, padding 0 2rem.
+Ink fill, black text, Space Grotesk 700, 1rem, tracking .06em.
+Shadow: a 1px white ring plus a solid 5px offset in 
+#4a4a4a.
+Hover: a flat translucent strip skewed -24° slides across.
+Press: moves 3px down and right.
+
+Secondary button: same shape with a transparent fill, ink text and an ink border.
+
+Dock
+
+Fixed at the bottom centre. It has 5 destinations: Home, Frequencies, Sessions, Manifesto, Join.
+Items are 48px with a 22px stroke icon (stroke 2, rounded caps).
+Inactive items sit at .5 opacity and active ones at 1, with a small dot under the active item.
+Magnification is distance-based: 1.32× scale, 8px lift, 2 neighbours either side, cosine falloff.
+Hover and focus show a label pill.
+The current section is marked with aria-current="location".
+
+Player card (NowPlaying)
+
+Fixed top right. 62px high, opens to 132px. Width is 250px, or the viewport minus 92px on narrow screens.
+Cover is a 44px square with the logo inverted. The play button is a 44px ink circle.
+Title is Space Grotesk and artist is mono. A 2px progress rail runs along the bottom.
+Pause and volume are the only controls.
+
+Volume slider (WakeSlider)
+
+26 thin bars, 14px high, 4px wide at most. Lit bars are ink and unlit bars are 
+#3a3a3a.
+Dragging fast makes the bars you pass spring up to 2.6× and settle. Energy decays by exp(-6.5·dt).
+Keyboard: arrows move by 1, Shift+arrows by 10, Home and End jump to the ends.
+
+Frequency rows
+
+Full-width buttons with a mono index (FREQ./001) and a large display title.
+Hover and focus invert the row to an ink fill with black text, add 1.2rem of left padding and reveal “ADD TO MY APPLICATION ↗”.
+A selected row gets a 6px left border.
+
+Chips
+
+44px minimum height, pill shape, 
+#3a3a3a border.
+Checked chips invert to ink fill with black text.
+Focus shows a 2px ink outline.
+
+Form fields
+
+Fill #000, border 
+#3a3a3a, radius 10px, minimum height 48px.
+Focus: ink border plus a 2px black and 2px ink ring.
+Error: dashed white border and a mono message under the field.
+Required and optional status is written in each label.
+
+Status message: 3px white left border with 1rem of left padding.
+
+Gooey loader: three 16px ink dots on a 1.5s ease-in-out loop, ±14px travel, 0.2s stagger, with an SVG goo filter (blur 3, alpha matrix 18 / -7). It appears only during real waits, such as video load and form submit.
+
+Pixel handshake: a 64×40 canvas drawn as a 32×20 grid of 2px cells, showing hands on a feature-phone frame. Pixels fall and fade as you scroll through the first 75% of the viewport height.
+
+HeatMap word: “THE STATIC” drawn blurred into a field, 720×200. Grey at rest. The cursor cools the field into greyscale contour bands. It is decorative and hidden from screen readers.
+
+Instagram link: a pill with a 22px outlined icon and “FOLLOW @THESTATIC.CTG ON INSTAGRAM” in mono. It inverts to ink on hover.
+
+8. Motion
+Easing curves: cubic-bezier(.22, 1, .36, 1) for arrivals (reveals, player morph, CTA strip). cubic-bezier(.24, 1.34, .38, 1) for the dock’s overshoot.
+Durations: 150–220ms for hover, press and colour. 420–460ms for morphs. 700ms for scroll reveals, which start 24px low and fade in.
+Scroll video smoothing: moves 22% of the remaining distance each frame.
+Rule: no motion or sound that isn’t doing a job. No hover sounds.
+9. Accessibility rules
+Focus ring: 2px ink outline with 3px offset.
+Minimum touch target: 44px.
+Skip link, semantic landmarks, labelled forms, and live regions for errors and status.
+Every animated layer has a reduced-motion fallback.
+Text on dark keeps strong contrast. The mid grey (
+#8b8b8b) is for labels only, never long text.
+10. ID card (SID)
+Size and frame: 860×540, radius 28, 1px 
+#2b2b2b border, padding 40px 44px.
+Top left: /001 in Space Grotesk 700, 60px.
+Top right: a mono label “THE STATIC / SID / ISSUE/001” next to the 52px inverted logo.
+Name: 68px Space Grotesk, uppercase, tracking -.045em.
+Static ID and Zone: 22px mono, in two columns under a hairline.
+Footer: the tagline in 11px mono, plus a bar strip (28 bars, 18 lit) that echoes the volume slider.
+Background: the teal image under a flat dark layer.
+11. Logo
+The supplied logo is black, so on dark it is shown inverted to white with filter: invert(1).
+Don’t recolour, redraw or add effects to it.
+The wordmark is plain Space Grotesk text until you supply the final one.
+12. Gaps
+[Certain] There’s no formal spacing scale. Spacing is set per component.
+No tokens file exists. The values live inside the page code.
+No light theme is defined, and none is planned.
+No photography rules are set beyond “real, greyscale, from Chattogram”. The photo style isn’t built yet.
+The ID card’s teal image is the only off-palette element, so decide whether it is a permanent exception.

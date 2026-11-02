@@ -1,0 +1,18 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".next/**", "apps/mobile/dist/**"]
+    },
+    "lint": {},
+    "typecheck": {},
+    "test": {},
+    "dev": {
+      "cache": false
+    },
+    "supabase:gen": {},
+    "supabase:start": {}
+  },
+  "globalDependencies": ["package.json", "pnpm-workspace.yaml", "turbo.json"]
+}
