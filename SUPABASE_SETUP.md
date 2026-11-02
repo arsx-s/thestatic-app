@@ -13,11 +13,19 @@ before selecting the production region.
 
 ## 2. Apply the database migration
 
-Run `supabase/migrations/001_initial_schema.sql` against each project via the
-Supabase SQL Editor or the Supabase CLI:
+Migration `001_initial_schema.sql` has been applied to the remote Supabase project `ogibtculbretwbrqvsvw` ("The Static") via:
 
 ```bash
-supabase db push
+supabase db push --remote --yes
+```
+
+Migration status: Applied and confirmed on remote. Remote database is up to date.
+
+To re-apply or apply to another project:
+
+```bash
+supabase link --project-ref <YOUR_PROJECT_REF>
+supabase db push --remote --yes
 ```
 
 or paste the migration contents into the SQL Editor in the Supabase dashboard.

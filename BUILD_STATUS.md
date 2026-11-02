@@ -48,9 +48,27 @@
 - `src/providers.tsx` — TanStack Query provider
 - Dependencies: expo-router, expo-crypto, expo-secure-store, expo-media-library, expo-image-picker, expo-av, expo-notifications, expo-sharing, expo-haptics, @supabase/supabase-js, zustand, @tanstack/react-query, react-native-reanimated, react-native-gesture-handler, react-native-svg, lucide-react-native
 
-### Supabase backend
-- `supabase/migrations/001_initial_schema.sql` — full schema (membership, identity, social, messaging, commerce, events, notifications, administration), RLS on every table, indexes, constraints, scoped grants
-- `supabase/functions/` — 11 Edge Functions: login-identifier, provision-member, register-device, publish-post, send-message, create-listing, create-order, register-event, submit-report, delete-account, revoke-member
+### Supabase backend — migration applied to remote project
+- `supabase/migrations/001_initial_schema.sql` — full schema (8 schemas, 34 tables), RLS on every table, indexes, constraints, scoped grants
+- Migration `001` applied to remote project `ogibtculbretwbrqvsvw` ("The Static") via `supabase db push --remote --yes`
+- Migration recorded on both Local and Remote (`supabase migration list --remote` confirms)
+- Remote database verified up to date (no pending migrations)
+- 8 schemas: membership, identity, social, messaging, commerce, events, notifications, administration
+- 34 tables across all schemas
+- `password_hash` column removed — Supabase Auth is sole password authority
+- `email` not granted to `anon` — column-level grants restrict anon to `(static_id, username, status)` only
+- `members_own_write` RLS policy: `auth.uid() = id` only (trigger enforces status/role/email/static_id immutability)
+- Column-level UPDATE grants: NO UPDATE privilege on `membership.members` for `authenticated`
+- Database trigger `membership.prevent_member_self_modification()` blocks self-modification of status/role/email/static_id for non-service-role users
+- `social.reactions` table created after `messaging.encrypted_messages` to respect FK dependency order
+- `social.reactions.message_id` → `messaging.encrypted_messages(id)` with proper FK
+- `social.reactions.story_id` → `social.stories(id)` with proper FK
+- `static_id` regex uses `[0-9]` (PostgreSQL POSIX-compatible, not `\d`)
+- RLS on all 34 tables
+- 34 RLS policies across all tables
+
+### Supabase backend — Edge Functions (created, not deployed)
+`supabase/functions/` — login-identifier, provision-member, register-device, publish-post (4 functions created; send-message, create-listing, create-order, register-event, submit-report, delete-account, revoke-member not yet created)
 
 ### Admin dashboard (`apps/admin`) — Next.js + TypeScript
 - Protected by server-side session + role checks (middleware + API routes)

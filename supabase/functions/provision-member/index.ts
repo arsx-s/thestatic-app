@@ -113,12 +113,12 @@ serve(async (req) => {
   const memberId = authData.user.id;
 
   // Create the member record.
-  const { error: memberError } = await supabase.from("members").insert({
+  // Password is managed by Supabase Auth (createUser above); not stored here.
+  const { error: memberError } = await supabase.from("membership.members").insert({
     id: memberId,
     static_id: finalStaticId,
     username: username.toLowerCase(),
     email,
-    password_hash: "", // managed by Supabase Auth; not stored here
     status: "active",
     role: "member",
   });

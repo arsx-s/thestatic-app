@@ -1,6 +1,6 @@
 -- 001_initial_schema.sql
 -- The Static — initial database schema.
--- Organised into logical domains within the public schema.
+-- Organised into logical domains within dedicated schemas.
 -- Row Level Security is enabled on every exposed table.
 
 -- ============================================================
@@ -9,15 +9,26 @@
 create extension if not exists "pgcrypto";
 
 -- ============================================================
+-- Schemas (one per logical domain)
+-- ============================================================
+create schema if not exists membership;
+create schema if not exists identity;
+create schema if not exists social;
+create schema if not exists messaging;
+create schema if not exists commerce;
+create schema if not exists events;
+create schema if not exists notifications;
+create schema if not exists administration;
+
+-- ============================================================
 -- Domain: membership
 -- ============================================================
 
 create table membership.members (
   id uuid primary key default gen_random_uuid(),
-  static_id text unique not null check (static_id ~ '^ST-\d{5}$'),
+  static_id text unique not null check (static_id ~ '^ST-[0-9]{5}$'),
   username text unique not null check (length(username) between 3 and 30) check (username ~ '^[a-z0-9._]+$'),
   email text unique,
-  password_hash text not null,
   status text not null default 'pending' check (status in ('pending','approved','invited','active','suspended','removed')),
   role text not null default 'member',
   created_at timestamptz not null default now(),
@@ -72,7 +83,7 @@ create table identity.key_packages (
 );
 
 -- ============================================================
--- Domain: social
+-- Domain: social (tables without cross-domain FK dependencies)
 -- ============================================================
 
 create table social.follows (
@@ -143,16 +154,6 @@ create table social.comments (
   deleted_at timestamptz
 );
 
-create table social.reactions (
-  id uuid primary key default gen_random_uuid(),
-  message_id uuid,
-  story_id uuid,
-  member_id uuid not null references membership.members(id) on delete cascade,
-  reaction text not null,
-  created_at timestamptz not null default now(),
-  check ((message_id is null) <> (story_id is null))
-);
-
 create table social.saved_posts (
   id uuid primary key default gen_random_uuid(),
   post_id uuid not null references social.posts(id) on delete cascade,
@@ -207,6 +208,22 @@ create table messaging.delivery_receipts (
   delivered_at timestamptz not null default now(),
   read_at timestamptz,
   unique (message_id, member_id)
+);
+
+-- ============================================================
+-- Domain: social (tables with cross-domain FK dependencies)
+-- social.reactions references messaging.encrypted_messages,
+-- so it must be created after messaging tables.
+-- ============================================================
+
+create table social.reactions (
+  id uuid primary key default gen_random_uuid(),
+  message_id uuid references messaging.encrypted_messages(id),
+  story_id uuid references social.stories(id),
+  member_id uuid not null references membership.members(id) on delete cascade,
+  reaction text not null,
+  created_at timestamptz not null default now(),
+  check ((message_id is null) <> (story_id is null))
 );
 
 -- ============================================================
@@ -455,6 +472,7 @@ alter table administration.audit_logs enable row level security;
 -- RLS policies: membership.members
 -- ============================================================
 -- Public read of active member identity fields (username, static_id, status) for discovery.
+-- Email is NOT granted to anon; column-level grants restrict anon to static_id, username, status only.
 -- Sensitive profile fields live in member_profiles with separate visibility policy.
 create policy "members_public_read_active"
   on membership.members for select
@@ -580,7 +598,16 @@ create policy "stories_read_authorized_audience"
         select 1 from social.follows f
         where f.following_id = stories.author_id
           and f.follower_id = auth.uid()
-          and (audience = 'followers' or audience = 'in_sync')
+          and audience = 'followers'
+      )
+      or exists (
+        select 1 from social.follows a
+        join social.follows b on a.follower_id = b.following_id
+        where a.following_id = stories.author_id
+          and a.follower_id = auth.uid()
+          and b.follower_id = stories.author_id
+          and b.following_id = auth.uid()
+          and audience = 'in_sync'
       )
     ))
   );
@@ -736,11 +763,34 @@ create policy "audit_logs_no_public"
   using (false);
 
 -- ============================================================
--- Revoke unnecessary defaults
+-- Revoke unnecessary defaults across all schemas
 -- ============================================================
-revoke all on all tables in schema public from anon, authenticated;
-grant select on membership.members to anon, authenticated;
+revoke all on all tables in schema membership from anon, authenticated;
+revoke all on all tables in schema identity from anon, authenticated;
+revoke all on all tables in schema social from anon, authenticated;
+revoke all on all tables in schema messaging from anon, authenticated;
+revoke all on all tables in schema commerce from anon, authenticated;
+revoke all on all tables in schema events from anon, authenticated;
+revoke all on all tables in schema notifications from anon, authenticated;
+revoke all on all tables in schema administration from anon, authenticated;
+
+-- Column-level grants: anon may only read identity fields for discovery (no email).
+grant select (static_id, username, status) on membership.members to anon;
+
+-- Authenticated members read active member identity fields.
+grant select (id, static_id, username, status, role, created_at, updated_at) on membership.members to authenticated;
+
+-- Authenticated member profile access.
 grant all on membership.member_profiles to authenticated;
+
+-- Applications: authenticated members can read their own; service-role handles admin review.
+grant select (id, member_id, status, created_at, updated_at) on membership.applications to authenticated;
+
+-- Identity: device/key access for authenticated members.
+grant all on identity.member_devices to authenticated;
+grant all on identity.key_packages to authenticated;
+
+-- Social graph.
 grant all on social.follows to authenticated;
 grant all on social.blocks to authenticated;
 grant all on social.mutes to authenticated;
@@ -750,11 +800,15 @@ grant all on social.post_interactions to authenticated;
 grant all on social.comments to authenticated;
 grant all on social.reactions to authenticated;
 grant all on social.saved_posts to authenticated;
+
+-- Messaging.
 grant all on messaging.conversations to authenticated;
 grant all on messaging.conversation_members to authenticated;
 grant all on messaging.encrypted_messages to authenticated;
 grant all on messaging.message_requests to authenticated;
 grant all on messaging.delivery_receipts to authenticated;
+
+-- Commerce.
 grant all on commerce.marketplace_listings to authenticated;
 grant all on commerce.store_products to authenticated;
 grant all on commerce.store_product_variants to authenticated;
@@ -762,8 +816,55 @@ grant all on commerce.carts to authenticated;
 grant all on commerce.cart_items to authenticated;
 grant all on commerce.store_orders to authenticated;
 grant all on commerce.order_items to authenticated;
+
+-- Events.
 grant all on events.events to authenticated;
 grant all on events.event_registrations to authenticated;
 grant all on events.tickets to authenticated;
+
+-- Notifications.
 grant all on notifications.notification_preferences to authenticated;
 grant all on notifications.push_tokens to authenticated;
+
+-- Administration: no public or authenticated member access (service-role only).
+
+-- ============================================================
+-- Defense in depth: trigger to prevent members from modifying
+-- their own status, role, or email via the members table.
+--
+-- Service role (auth.uid() IS NULL) bypasses this check, so
+-- administrators can still suspend/restore members through
+-- the admin dashboard. Regular members (auth.uid() IS NOT NULL)
+-- cannot change these fields.
+-- ============================================================
+create or replace function membership.prevent_member_self_modification()
+returns trigger
+language plpgsql
+as $$
+begin
+  if auth.uid() is not null
+     and (
+       new.status is distinct from old.status
+       or new.role is distinct from old.role
+       or new.email is distinct from old.email
+       or new.static_id is distinct from old.static_id
+     )
+  then
+    raise exception 'Members cannot modify their own status, role, email, or Static ID.';
+  end if;
+  return new;
+end;
+$$;
+
+create trigger membership_prevent_member_self_modification
+before update on membership.members
+for each row
+execute function membership.prevent_member_self_modification();
+
+-- ============================================================
+-- Column-level UPDATE grants: no UPDATE privilege is granted
+-- on membership.members to authenticated members. Profile edits
+-- go through membership.member_profiles instead. This is
+-- enforced at the privilege level (not just RLS), so even if
+-- RLS is misconfigured, members cannot UPDATE the members table.
+-- ============================================================

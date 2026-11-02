@@ -34,10 +34,18 @@ The server CANNOT see:
 
 ## Access control
 
-- Row Level Security enabled on every exposed table.
+- Row Level Security enabled on all 34 tables across 8 schemas.
 - Supabase service-role key never bundled into mobile app or browser.
 - Admin dashboard uses server-side authorization (roles checked in API routes).
 - Administrators have no backdoor to private encrypted conversations.
+- Column-level grants: `anon` can only `SELECT (static_id, username, status)` on `membership.members` — email and other private fields are not accessible.
+- `authenticated` members have NO UPDATE privilege on `membership.members` (privilege-level enforcement). Profile edits go through `membership.member_profiles`.
+- Database trigger `membership.prevent_member_self_modification()` blocks non-service-role users from changing `status`, `role`, `email`, or `static_id` on their own member record.
+- Service role (`auth.uid() IS NULL`) bypasses the trigger, allowing admin actions through Edge Functions.
+- `members_own_write` RLS policy: `auth.uid() = id` only — members can update their own row, but the trigger prevents protected-field changes.
+- `in_sync` audience requires mutual following (both `follows` rows must exist).
+- Message access restricted to conversation participants via `conversation_members` RLS policy.
+- Administration tables (`admin_roles`, `moderation_reports`, `audit_logs`) have `using (false)` policies — no public or authenticated member access.
 
 ## App Store requirements
 
