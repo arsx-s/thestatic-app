@@ -22,6 +22,7 @@
 #     SUPABASE_SERVICE_ROLE_KEY (secret, server-side only)
 
 [build]
+  base = "/"
   command = "pnpm --filter @the-static/web run build"
   publish = "apps/web/.next"
   function_directory = ".netlify/functions"
@@ -32,6 +33,9 @@
 [build.runtime]
   selected = "nodejs"
   version = "20"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
 
 # ============================================================
 # Next.js static assets headers (both PWA and Admin)
