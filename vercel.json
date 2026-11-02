@@ -1,14 +1,17 @@
 {
-  "version": 3,
-  "routes": [
-    { "src": "/sw", "headers": { "Service-Worker-Allowed": "/", "Cache-Control": "no-cache, no-store, must-revalidate", "Content-Type": "application/javascript" } },
-    { "src": "/manifest", "headers": { "Content-Type": "application/manifest+json", "Cache-Control": "public, max-age=31536000, immutable" } },
-    { "src": "/icons/(.*)", "headers": { "Cache-Control": "public, max-age=31536000, immutable" } },
-    { "src": "/_next/static/(.*)", "headers": { "Cache-Control": "public, max-age=31536000, immutable" } },
-    { "src": "/auth/callback", "dest": "/auth/callback" },
-    { "src": "/(.*)", "dest": "/" }
-  ],
-  "builds": [
-    { "src": "apps/web/package.json", "use": "@vercel/next", "config": { "target": "serverless" } }
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "web": {
+      "root": "apps/web",
+      "framework": "nextjs"
+    },
+    "admin": {
+      "root": "apps/admin",
+      "framework": "nextjs"
+    }
+  },
+  "rewrites": [
+    { "source": "/admin/(.*)", "destination": { "service": "admin" } },
+    { "source": "/(.*)", "destination": { "service": "web" } }
   ]
 }
