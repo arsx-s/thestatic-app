@@ -73,7 +73,7 @@ serve(async (req) => {
     .from("administration.admin_roles")
     .select("role")
     .eq("member_id", actorId)
-    .in("role", ["owner", "super_admin", "membership_admin"])
+    .in("role", ["owner", "super_admin", "membership_admin", "founder"])
     .maybeSingle();
 
   if (!roleRow) {

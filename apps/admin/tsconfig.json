@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
-    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ES2022"
+    ],
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
@@ -13,13 +17,37 @@
     "jsx": "preserve",
     "incremental": true,
     "paths": {
-      "@/*": ["./*"],
-      "@the-static/shared-types": ["../../packages/shared-types/src"],
-      "@the-static/api-client": ["../../packages/api-client/src"],
-      "@the-static/validation": ["../../packages/validation/src"],
-      "@the-static/design-system": ["../../packages/design-system/src"]
-    }
+      "@/*": [
+        "./*"
+      ],
+      "@the-static/shared-types": [
+        "../../packages/shared-types/src"
+      ],
+      "@the-static/api-client": [
+        "../../packages/api-client/src"
+      ],
+      "@the-static/validation": [
+        "../../packages/validation/src"
+      ],
+      "@the-static/design-system": [
+        "../../packages/design-system/src"
+      ]
+    },
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Card, Wordmark, Tagline, SectionLabel, EmptyState, Button, Avatar } from "@/components/ui";
+import { supabase } from "@/lib/supabase";
 
 const INTERESTS = [
   "Music", "Fashion", "Sneakers", "Football", "Gaming",
@@ -110,7 +111,7 @@ export default function DiscoverPage() {
 
 // Supabase query helper
 async function supabaseQuery(table: string, select: string, filter1: any, filter2: any, limit: number) {
-  const { data, error } = await (globalThis as any).supabase
+  const { data, error } = await supabase
     .from(table)
     .select(select)
     .filter(filter1.column, filter1.op, filter1.value)

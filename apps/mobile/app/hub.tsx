@@ -1,4 +1,5 @@
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Link } from "expo-router";
 
 export default function HubScreen() {
   return (
@@ -12,29 +13,35 @@ export default function HubScreen() {
           <Text style={styles.tagline}>Market, Store, Events</Text>
         </View>
 
-        <TouchableOpacity style={styles.module} onPress={() => {}}>
-          <View style={styles.moduleIcon}>M</View>
-          <View>
-            <Text style={styles.moduleTitle}>Static Marketplace</Text>
-            <Text style={styles.moduleSub}>Member-to-member buying and selling</Text>
-          </View>
-        </TouchableOpacity>
+        <Link href="/hub/marketplace">
+          <TouchableOpacity style={styles.module}>
+            <View style={styles.moduleIcon}>M</View>
+            <View>
+              <Text style={styles.moduleTitle}>Static Marketplace</Text>
+              <Text style={styles.moduleSub}>Member-to-member buying and selling</Text>
+            </View>
+          </TouchableOpacity>
+        </Link>
 
-        <TouchableOpacity style={styles.module} onPress={() => {}}>
-          <View style={styles.moduleIcon}>S</View>
-          <View>
-            <Text style={styles.moduleTitle}>Static Store</Text>
-            <Text style={styles.moduleSub}>Official merchandise and limited drops</Text>
-          </View>
-        </TouchableOpacity>
+        <Link href="/hub/store">
+          <TouchableOpacity style={styles.module}>
+            <View style={styles.moduleIcon}>S</View>
+            <View>
+              <Text style={styles.moduleTitle}>Static Store</Text>
+              <Text style={styles.moduleSub}>Official merchandise and limited drops</Text>
+            </View>
+          </TouchableOpacity>
+        </Link>
 
-        <TouchableOpacity style={styles.module} onPress={() => {}}>
-          <View style={styles.moduleIcon}>E</View>
-          <View>
-            <Text style={styles.moduleTitle}>Static Events</Text>
-            <Text style={styles.moduleSub}>Events, registrations and tickets</Text>
-          </View>
-        </TouchableOpacity>
+        <Link href="/hub/events">
+          <TouchableOpacity style={styles.module}>
+            <View style={styles.moduleIcon}>E</View>
+            <View>
+              <Text style={styles.moduleTitle}>Static Events</Text>
+              <Text style={styles.moduleSub}>Events, registrations and tickets</Text>
+            </View>
+          </TouchableOpacity>
+        </Link>
       </ScrollView>
     </SafeAreaView>
   );

@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "next": "^15.2.4",
-    "react": "^19.3.0",
-    "react-dom": "^19.3.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
     "@supabase/supabase-js": "^2.49.4",
     "@the-static/shared-types": "workspace:*",
     "@the-static/api-client": "workspace:*",

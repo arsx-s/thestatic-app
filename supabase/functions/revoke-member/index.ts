@@ -18,7 +18,7 @@ const corsHeaders = {
   "Content-Type": "application/json",
 };
 
-const ADMIN_ROLES = ["owner", "super_admin", "membership_admin"];
+const ADMIN_ROLES = ["owner", "super_admin", "membership_admin", "founder"];
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {

@@ -7,7 +7,9 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Alert,
 } from "react-native";
+import { supabase } from "../src/lib/supabase";
 
 const AUDIENCES = [
   { value: "followers", label: "Followers" },
@@ -21,6 +23,39 @@ export default function CreateScreen() {
   const [audience, setAudience] = useState("followers");
   const [allowComments, setAllowComments] = useState(true);
   const [mediaCount, setMediaCount] = useState(0);
+  const [publishing, setPublishing] = useState(false);
+
+  const handlePublish = async () => {
+    if (!caption.trim()) {
+      Alert.alert("Static", "Please enter a caption before publishing.");
+      return;
+    }
+    setPublishing(true);
+    try {
+      const { error } = await supabase.functions.invoke("publish-post", {
+        body: {
+          audience,
+          encrypted_content: caption,
+          encrypted_media_reference: null,
+          audience_reference: null,
+        },
+      });
+      if (error) {
+        Alert.alert("Publish failed", error.message || "Unknown error");
+        return;
+      }
+      // Reset form
+      setCaption("");
+      setAudience("followers");
+      setAllowComments(true);
+      setMediaCount(0);
+      Alert.alert("Static", "Post published.");
+    } catch (err: any) {
+      Alert.alert("Publish failed", err.message || "Unknown error");
+    } finally {
+      setPublishing(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -98,7 +133,7 @@ export default function CreateScreen() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.publish} onPress={() => {}}>
+        <TouchableOpacity style={styles.publish} onPress={handlePublish}>
           <Text style={styles.publishText}>Publish</Text>
         </TouchableOpacity>
 
