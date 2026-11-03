@@ -48,7 +48,7 @@ serve(async (req) => {
     return new Response(JSON.stringify({ email: null }), { headers: corsHeaders });
   }
 
-  const isStaticId = /^(ST-\d{5}|static/\d{3})$/.test(identifier.trim());
+  const isStaticId = /^(ST-\d{5}|static\/\d{3})$/.test(identifier.trim());
   const column = isStaticId ? "static_id" : "username";
   const value = isStaticId ? identifier.trim() : identifier.trim().toLowerCase();
 
