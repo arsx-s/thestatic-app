@@ -17,7 +17,7 @@
     }
   },
   "rewrites": [
-    { "source": "/admin/(.*)", "destination": { "service": "admin" } },
+    { "source": "/admin(/.*)?", "destination": { "service": "admin" } },
     { "source": "/(.*)", "destination": { "service": "web" } }
   ]
 }

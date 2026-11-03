@@ -5,17 +5,56 @@ import { useRouter } from "next/navigation";
 import { Wordmark, Tagline } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/lib/auth";
+import { AUTH_STORAGE_KEY } from "@/lib/supabase";
 
 export default function RootPage() {
-  const { member, isAuthenticated, isLoading } = useAuthStore();
+  const { member, isAuthenticated, isLoading, setSession, setLoading } =
+    useAuthStore();
   const router = useRouter();
 
   useEffect(() => {
-        if (!isLoading && !isAuthenticated) {
-          router.replace("/(auth)/login");
-        } else if (!isLoading && isAuthenticated) {
-          router.replace("/home");
+    const checkSession = async () => {
+      const accessToken = localStorage.getItem(
+        `${AUTH_STORAGE_KEY}:access`
+      );
+      if (accessToken) {
+        try {
+          const { data, error } = await supabase.auth.getUser();
+          if (data.user && !error) {
+            setSession(
+              {
+                id: data.user.id,
+                staticId:
+                  data.user.user_metadata?.static_id ?? "",
+                username:
+                  data.user.user_metadata?.username ?? "",
+                status:
+                  data.user.user_metadata?.status ?? "active",
+                role:
+                  data.user.user_metadata?.role ?? "member",
+              },
+              accessToken,
+              ""
+            );
+          }
+        } catch {
+          // Session invalid, clear it
+          localStorage.removeItem(`${AUTH_STORAGE_KEY}:access`);
+          localStorage.removeItem(`${AUTH_STORAGE_KEY}:refresh`);
         }
+      }
+      setLoading(false);
+    };
+
+    checkSession();
+  }, []);
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.replace("/(auth)/login");
+    } else if (!isLoading && isAuthenticated) {
+      router.replace("/home");
+    }
   }, [isAuthenticated, isLoading, router]);
 
   if (isLoading) {
