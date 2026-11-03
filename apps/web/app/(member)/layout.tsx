@@ -20,11 +20,11 @@ export default function MemberLayout({
   const router = useRouter();
 
   const nav = [
-    { key: "home", label: "Home", icon: Layout, href: "/(member)" },
-    { key: "discover", label: "Discover", icon: Search, href: "/(member)/discover" },
-    { key: "create", label: "Create", icon: SquarePlus, href: "/(member)/create" },
-    { key: "inbox", label: "Inbox", icon: Inbox, href: "/(member)/inbox" },
-    { key: "profile", label: "Profile", icon: User, href: "/(member)/profile" },
+    { key: "home", label: "Home", icon: Layout, href: "/home" },
+    { key: "discover", label: "Discover", icon: Search, href: "/discover" },
+    { key: "create", label: "Create", icon: SquarePlus, href: "/create" },
+    { key: "inbox", label: "Inbox", icon: Inbox, href: "/inbox" },
+    { key: "profile", label: "Profile", icon: User, href: "/profile" },
   ];
 
   const handleLogout = () => {

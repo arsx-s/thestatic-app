@@ -49,10 +49,10 @@ export default function LoginPage() {
       );
       if (!pwError && pwCheck?.must_change_password) {
         // Redirect to mandatory password change screen
-        router.replace("/(member)/password-change");
+        router.replace("/password-change");
         router.refresh();
       } else {
-        router.replace("/(member)");
+        router.replace("/home");
         router.refresh();
       }
     } catch (err: any) {

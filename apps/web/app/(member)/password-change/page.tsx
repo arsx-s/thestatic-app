@@ -76,7 +76,7 @@ export default function PasswordChangePage() {
 
       // Redirect to home after a brief delay to show success
       setTimeout(() => {
-        router.push("/(member)");
+        router.push("/home");
         router.refresh();
       }, 1500);
     } catch (err: any) {
@@ -101,7 +101,7 @@ export default function PasswordChangePage() {
             variant="primary"
             className="w-full"
             onClick={() => {
-              router.push("/(member)");
+              router.push("/home");
               router.refresh();
             }}
           >

@@ -21,7 +21,7 @@ export default function DeviceVerificationPage() {
         <Button
           variant="primary"
           className="w-full"
-          onClick={() => router.push("/(member)")}
+          onClick={() => router.push("/home")}
         >
           Continue
         </Button>
