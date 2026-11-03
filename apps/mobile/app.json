@@ -51,7 +51,7 @@
       [
       "expo-notifications",
       {
-        "strategy": "set-as-placholder-icon",
+        "strategy": "set-as-placeholder-icon",
         "androidMode": "default",
         "androidChannel": "The Static",
         "androidColor": "#070707"
