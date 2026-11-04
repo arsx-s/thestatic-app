@@ -4,17 +4,23 @@ import { Database } from "@the-static/api-client";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-export function createSupabaseClient(accessToken?: string) {
+export const AUTH_STORAGE_KEY = "thestatic:auth";
+
+export function createSupabaseClient() {
   if (!supabaseUrl || !supabaseAnonKey) {
     throw new Error(
       "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY environment variables.",
     );
   }
-  return createClient<Database>(supabaseUrl!, supabaseAnonKey!, {
-    global: {
-      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+  return createClient<Database>(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+      // The OAuth code is exchanged by /auth/callback so the member record can
+      // be resolved before the app routes anywhere.
+      detectSessionInUrl: false,
+      storageKey: AUTH_STORAGE_KEY,
     },
-    auth: { autoRefreshToken: false, persistSession: false },
   });
 }
 
@@ -31,22 +37,9 @@ export const supabase: any = new Proxy({}, {
   },
 });
 
-export const AUTH_STORAGE_KEY = "thestatic:auth:session";
-
-export async function persistSession(accessToken: string, refreshToken: string): Promise<void> {
-  localStorage.setItem(`${AUTH_STORAGE_KEY}:access`, accessToken);
-  localStorage.setItem(`${AUTH_STORAGE_KEY}:refresh`, refreshToken);
-}
-
-export async function clearStoredSession(): Promise<void> {
-  localStorage.removeItem(`${AUTH_STORAGE_KEY}:access`);
-  localStorage.removeItem(`${AUTH_STORAGE_KEY}:refresh`);
-}
-
-export async function getStoredAccessToken(): Promise<string | null> {
-  return localStorage.getItem(`${AUTH_STORAGE_KEY}:access`);
-}
-
-export async function getStoredRefreshToken(): Promise<string | null> {
-  return localStorage.getItem(`${AUTH_STORAGE_KEY}:refresh`);
+export function getSupabaseClient() {
+  if (!_supabase) {
+    _supabase = createSupabaseClient();
+  }
+  return _supabase;
 }

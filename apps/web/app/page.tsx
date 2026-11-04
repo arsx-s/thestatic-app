@@ -1,69 +1,48 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Wordmark, Tagline } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/lib/auth";
-import { AUTH_STORAGE_KEY } from "@/lib/supabase";
+import { BrandMark } from "@/components/brand-mark";
 
 export default function RootPage() {
-  const { member, isAuthenticated, isLoading, setSession, setLoading } =
-    useAuthStore();
+  const { isAuthenticated, isLoading, setSession, setLoading } = useAuthStore();
   const router = useRouter();
 
   useEffect(() => {
-    const checkSession = async () => {
-      const accessToken = localStorage.getItem(
-        `${AUTH_STORAGE_KEY}:access`
-      );
-      if (accessToken) {
-        try {
-          const { data, error } = await supabase.auth.getUser();
-          if (data.user && !error) {
-            setSession(
-              {
-                id: data.user.id,
-                staticId:
-                  data.user.user_metadata?.static_id ?? "",
-                username:
-                  data.user.user_metadata?.username ?? "",
-                status:
-                  data.user.user_metadata?.status ?? "active",
-                role:
-                  data.user.user_metadata?.role ?? "member",
-              },
-              accessToken,
-              ""
-            );
-          }
-        } catch {
-          // Session invalid, clear it
-          localStorage.removeItem(`${AUTH_STORAGE_KEY}:access`);
-          localStorage.removeItem(`${AUTH_STORAGE_KEY}:refresh`);
-        }
+    const restoreSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      const session = data.session;
+      if (session?.user) {
+        setSession(
+          {
+            id: session.user.id,
+            staticId: session.user.user_metadata?.static_id ?? "",
+            username: session.user.user_metadata?.username ?? "",
+            status: session.user.user_metadata?.status ?? "active",
+            role: session.user.user_metadata?.role ?? "member",
+          },
+          session.access_token,
+          session.refresh_token,
+        );
       }
       setLoading(false);
     };
 
-    checkSession();
-  }, []);
+    void restoreSession();
+  }, [setSession, setLoading]);
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.replace("/login");
-    } else if (!isLoading && isAuthenticated) {
-      router.replace("/home");
-    }
+    if (isLoading) return;
+    router.replace(isAuthenticated ? "/home" : "/login");
   }, [isAuthenticated, isLoading, router]);
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#070707]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-[#ececec] border-t-transparent rounded-full animate-spin" />
-          <p className="font-IBM-Plex-Mono text-[12px] text-[#8b8b8b]">Loading…</p>
-        </div>
+      <div className="min-h-[100dvh] flex flex-col items-center justify-center gap-5 bg-[#070707]">
+        <BrandMark size={44} className="text-[#ececec]" />
+        <p className="font-IBM-Plex-Mono text-[12px] text-[#8b8b8b]">Loading…</p>
       </div>
     );
   }

@@ -1,16 +1,15 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Wordmark, Tagline, Button } from "@/components/ui";
+import { AuthBrandHeader, Button } from "@/components/ui";
 
 export default function DeviceVerificationPage() {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#070707] p-6">
-      <div className="max-w-[400px]">
-        <Wordmark className="mb-2" />
-        <Tagline className="mb-8" />
+    <div className="min-h-[100dvh] flex items-center justify-center bg-[#070707] p-6">
+      <div className="w-full max-w-[400px]">
+        <AuthBrandHeader />
         <div className="text-[#ececec] font-Space-Grotesk font-bold text-[16px] mb-2">
           Verify this device
         </div>

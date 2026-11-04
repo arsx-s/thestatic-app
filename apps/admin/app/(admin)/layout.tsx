@@ -4,9 +4,10 @@ import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  Layout, Shield, Users, FileText, ShoppingBag, Package, Calendar, Settings,
+  Layout, Users, FileText, ShoppingBag, Package, Calendar, Settings,
   LogOut, Activity, Link as LinkIcon,
 } from "lucide-react";
+import { BrandMark } from "@/components/brand-mark";
 
 const NAV = [
   { key: "dashboard", label: "Overview", icon: Layout, href: "/dashboard" },
@@ -44,13 +45,15 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         }}
       >
         <div style={{ padding: 20, display: "flex", alignItems: "center", gap: 10, borderBottom: "1px solid #2b2b2b" }}>
-          <Shield style={{ width: 26, height: 26, color: "#ececec" }} />
+          <span style={{ display: "inline-flex", color: "#ececec", flexShrink: 0 }}>
+            <BrandMark size={26} />
+          </span>
           <span
             style={{
               fontFamily: "Space Grotesk, ui-sans-serif, system-ui",
               fontSize: collapsed ? 0 : 18,
               fontWeight: 700,
-              letterSpacing: -0.04,
+              letterSpacing: "-0.04em",
               textTransform: "uppercase",
               color: "#ececec",
               opacity: collapsed ? 0 : 1,
@@ -81,7 +84,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                   textDecoration: "none",
                   fontFamily: "IBM Plex Mono, ui-monospace, monospace",
                   fontSize: 12,
-                  letterSpacing: 0.14,
+                  letterSpacing: "0.14em",
                   textTransform: "uppercase",
                   minHeight: 44,
                   justifyContent: collapsed ? "center" : "flex-start",
@@ -110,7 +113,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
               color: "#8b8b8b",
               fontFamily: "IBM Plex Mono, ui-monospace, monospace",
               fontSize: 12,
-              letterSpacing: 0.14,
+              letterSpacing: "0.14em",
               textTransform: "uppercase",
               justifyContent: collapsed ? "center" : "flex-start",
             }}
@@ -123,13 +126,14 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
             style={{
               marginTop: 8,
               width: "100%",
+              minHeight: 44,
               padding: 10,
               borderRadius: 10,
               border: "1px solid #3a3a3a",
               color: "#8b8b8b",
               fontFamily: "IBM Plex Mono, ui-monospace, monospace",
               fontSize: 11,
-              letterSpacing: 0.14,
+              letterSpacing: "0.14em",
               textTransform: "uppercase",
             }}
           >

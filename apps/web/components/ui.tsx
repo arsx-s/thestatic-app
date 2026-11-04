@@ -1,3 +1,5 @@
+import { BrandMark } from "./brand-mark";
+
 export function Button({
   children,
   onClick,
@@ -14,7 +16,7 @@ export function Button({
   type?: "submit" | "reset" | "button";
 }) {
   const base =
-    "font-Space-Grotesk font-bold text-[13px] tracking-[0.06] uppercase px-4 py-3 rounded-[10px] transition-colors disabled:opacity-50 disabled:pointer-events-none";
+    "font-Space-Grotesk font-bold text-[13px] tracking-[0.06em] uppercase px-4 py-3 rounded-[10px] transition-colors disabled:opacity-50 disabled:pointer-events-none";
   const variants: Record<string, string> = {
     primary: "bg-[#ececec] text-[#000]",
     secondary: "bg-transparent border border-[#3a3a3a] text-[#ececec]",
@@ -74,7 +76,7 @@ export function Label({
   className?: string;
 }) {
   return (
-    <label className={`font-IBM-Plex-Mono text-[11px] text-[#8b8b8b] uppercase tracking-[0.14] mb-2 block ml-[2px] ${className}`}>
+    <label className={`font-IBM-Plex-Mono text-[11px] text-[#8b8b8b] uppercase tracking-[0.14em] mb-2 block ml-[2px] ${className}`}>
       {children}
     </label>
   );
@@ -104,7 +106,7 @@ export function SectionLabel({
   className?: string;
 }) {
   return (
-    <div className={`font-IBM-Plex-Mono text-[11px] text-[#8b8b8b] uppercase tracking-[0.14] mb-3 ${className}`}>
+    <div className={`font-IBM-Plex-Mono text-[11px] text-[#8b8b8b] uppercase tracking-[0.14em] mb-3 ${className}`}>
       {children}
     </div>
   );
@@ -113,7 +115,7 @@ export function SectionLabel({
 export function Wordmark({ className = "" }: { className?: string }) {
   return (
     <span
-      className={`font-Space-Grotesk font-bold text-[22px] tracking-[-0.045] uppercase text-[#ececec] ${className}`}
+      className={`block font-Space-Grotesk font-bold text-[22px] tracking-[-0.045em] uppercase text-[#ececec] ${className}`}
     >
       THE STATIC
     </span>
@@ -123,7 +125,7 @@ export function Wordmark({ className = "" }: { className?: string }) {
 export function Tagline({ className = "" }: { className?: string }) {
   return (
     <span
-      className={`font-IBM-Plex-Mono text-[13px] text-[#8b8b8b] tracking-[0.14] ${className}`}
+      className={`block font-IBM-Plex-Mono text-[13px] text-[#8b8b8b] tracking-[0.14em] ${className}`}
     >
       There&apos;s more of us than you think.
     </span>
@@ -171,7 +173,7 @@ export function Stat({ value, label }: { value: string | number; label: string }
   return (
     <div className="flex flex-col items-center">
       <span className="font-Space-Grotesk font-bold text-[16px] text-[#ececec]">{value}</span>
-      <span className="font-IBM-Plex-Mono text-[10px] text-[#8b8b8b] uppercase tracking-[0.14]">
+      <span className="font-IBM-Plex-Mono text-[10px] text-[#8b8b8b] uppercase tracking-[0.14em]">
         {label}
       </span>
     </div>
@@ -203,6 +205,18 @@ export function EmptyState({
           {subtitle}
         </div>
       )}
+    </div>
+  );
+}
+
+export function AuthBrandHeader() {
+  return (
+    <div className="mb-8">
+      <div className="flex items-center gap-3 mb-2">
+        <BrandMark size={30} className="text-[#ececec] shrink-0" />
+        <Wordmark />
+      </div>
+      <Tagline />
     </div>
   );
 }

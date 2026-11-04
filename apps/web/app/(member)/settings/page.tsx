@@ -1,14 +1,10 @@
 "use client";
 
-import { Wordmark, Tagline, SectionLabel, Button } from "@/components/ui";
+import { SectionLabel, Button } from "@/components/ui";
 
 export default function SettingsPage() {
   return (
-    <div className="p-3 bg-[#070707] min-h-screen">
-      <div className="mb-3">
-        <Wordmark className="text-[22px]" />
-        <Tagline />
-      </div>
+    <div className="p-3 bg-[#070707] min-h-full">
 
       <SectionLabel>Privacy &amp; Security</SectionLabel>
       <SettingsRow title="Privacy" sub="Profile visibility and discoverability" />

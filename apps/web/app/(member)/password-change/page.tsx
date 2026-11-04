@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Wordmark, Tagline, Button, Input, Label, Card } from "@/components/ui";
+import { Button, Input, Label } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/lib/auth";
 
@@ -87,10 +87,8 @@ export default function PasswordChangePage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#070707] p-6">
-        <div className="max-w-[400px] text-center">
-          <Wordmark className="mb-2" />
-          <Tagline className="mb-8" />
+      <div className="min-h-full flex items-center justify-center bg-[#070707] p-6">
+        <div className="w-full max-w-[400px] text-center">
           <div className="text-[#ececec] font-Space-Grotesk font-bold text-[16px] mb-2">
             Password changed successfully
           </div>
@@ -113,10 +111,8 @@ export default function PasswordChangePage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#070707] p-6">
-      <div className="max-w-[400px]">
-        <Wordmark className="mb-2" />
-        <Tagline className="mb-8" />
+    <div className="min-h-full flex items-center justify-center bg-[#070707] p-6">
+      <div className="w-full max-w-[400px]">
         <div className="text-[#ececec] font-Space-Grotesk font-bold text-[16px] mb-2">
           Change your password
         </div>

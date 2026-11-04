@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Wordmark, Tagline, Button, Input, Label } from "@/components/ui";
+import { AuthBrandHeader, Button, Input, Label } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
 
 export default function ForgotPasswordPage() {
@@ -34,10 +34,9 @@ export default function ForgotPasswordPage() {
 
   if (sent) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#070707] p-6">
-        <div className="max-w-[400px]">
-          <Wordmark className="mb-2" />
-          <Tagline className="mb-8" />
+      <div className="min-h-[100dvh] flex items-center justify-center bg-[#070707] p-6">
+        <div className="w-full max-w-[400px]">
+          <AuthBrandHeader />
           <div className="text-[#ececec] font-Space-Grotesk font-bold text-[16px] mb-2">
             Password recovery
           </div>
@@ -58,10 +57,9 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#070707] p-6">
-      <div className="max-w-[400px]">
-        <Wordmark className="mb-2" />
-        <Tagline className="mb-8" />
+    <div className="min-h-[100dvh] flex items-center justify-center bg-[#070707] p-6">
+      <div className="w-full max-w-[400px]">
+        <AuthBrandHeader />
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <Label>Static ID / Username</Label>

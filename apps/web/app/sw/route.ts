@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   return new Response(
-    `const CACHE_NAME = "thestatic-v2";
+    `const CACHE_NAME = "thestatic-v3";
 const APP_SHELL_URLS = [
   "/manifest",
   "/icons/icon-192.png",

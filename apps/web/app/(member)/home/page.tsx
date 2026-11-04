@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { Card, Wordmark, Tagline, SectionLabel, EmptyState, Avatar } from "@/components/ui";
+import { Card, SectionLabel, EmptyState, Avatar } from "@/components/ui";
 
 type Post = {
   id: string;
@@ -15,6 +16,7 @@ type Post = {
 };
 
 export default function HomePage() {
+  const router = useRouter();
   const [stories, setStories] = useState<any[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -87,10 +89,13 @@ export default function HomePage() {
   };
 
   return (
-    <div className="p-3 bg-[#070707] min-h-screen">
-      <div className="flex items-center justify-between mb-3">
-        <Wordmark className="text-[20px]" />
-        <button className="p-2 text-[#8b8b8b] hover:text-[#ececec]">
+    <div className="p-3 bg-[#070707] min-h-full">
+      <div className="flex items-center justify-end mb-3">
+        <button
+          onClick={() => router.push("/hub")}
+          aria-label="Open Hub"
+          className="min-h-[44px] min-w-[44px] px-3 inline-flex items-center justify-center rounded-pill border border-[#2b2b2b] text-[#8b8b8b] hover:text-[#ececec]"
+        >
           <span className="font-IBM-Plex-Mono text-[12px]">Hub</span>
         </button>
       </div>
@@ -120,9 +125,9 @@ export default function HomePage() {
       </div>
 
       {loading ? (
-        <div className="flex gap-4 py-4">
-          {[1, 2, 3, 4].map((i) => (
-            <Card key={i} className="h-[260px]" />
+        <div className="flex flex-col gap-4 py-4">
+          {[1, 2, 3].map((i) => (
+            <Card key={i} className="h-[200px]" />
           ))}
         </div>
       ) : posts.length === 0 ? (

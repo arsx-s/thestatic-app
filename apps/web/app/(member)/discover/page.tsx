@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Card, Wordmark, Tagline, SectionLabel, EmptyState, Button, Avatar } from "@/components/ui";
+import { Card, SectionLabel, EmptyState, Button, Avatar } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
 
 const INTERESTS = [
@@ -38,11 +38,7 @@ export default function DiscoverPage() {
   };
 
   return (
-    <div className="p-3 bg-[#070707] min-h-screen">
-      <div className="mb-3">
-        <Wordmark className="text-[22px]" />
-        <Tagline />
-      </div>
+    <div className="p-3 bg-[#070707] min-h-full">
 
       <Card className="flex flex-col gap-3 mb-4">
         <input
@@ -69,7 +65,7 @@ export default function DiscoverPage() {
           <button
             key={interest}
             onClick={() => setSelectedInterest(selectedInterest === interest ? null : interest)}
-            className={`px-3 py-1.5 rounded-[99px] border border-[#3a3a3a] bg-[#0a0a0a] text-[12px] font-IBM-Plex-Mono ${selectedInterest === interest ? "bg-[#ececec] border-[#ececec] text-[#000]" : "text-[#c9c9c9] border-[#3a3a3a]"}`}
+            className={`min-h-[44px] px-3 inline-flex items-center rounded-[99px] border text-[12px] font-IBM-Plex-Mono whitespace-nowrap ${selectedInterest === interest ? "bg-[#ececec] border-[#ececec] text-[#000]" : "bg-[#0a0a0a] text-[#c9c9c9] border-[#3a3a3a]"}`}
           >
             {interest}
           </button>

@@ -26,17 +26,18 @@ export default function MembersPage() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h1 style={{ fontFamily: "Space Grotesk, ui-sans-serif, system-ui", fontSize: 22, fontWeight: 700, letterSpacing: -0.04, textTransform: "uppercase", color: "#ececec", margin: 0 }}>
+        <h1 style={{ fontFamily: "Space Grotesk, ui-sans-serif, system-ui", fontSize: 22, fontWeight: 700, letterSpacing: "-0.04em", textTransform: "uppercase", color: "#ececec", margin: 0 }}>
           Members
         </h1>
         <Link
           href="/members/create"
           style={{
             display: "flex", alignItems: "center", gap: 8,
+            minHeight: 44,
             background: "#ececec", color: "#000",
             paddingTop: 8, paddingRight: 14, paddingBottom: 8, paddingLeft: 14,
             borderRadius: 10,
-            fontFamily: "IBM Plex Mono, ui-monospace, monospace", fontSize: 12, letterSpacing: 0.14, textTransform: "uppercase",
+            fontFamily: "IBM Plex Mono, ui-monospace, monospace", fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase",
           }}
         >
           <ShieldAlert style={{ width: 16, height: 16 }} /> Provision account
@@ -44,7 +45,7 @@ export default function MembersPage() {
       </div>
 
       <div style={{ background: "#0a0a0a", border: "1px solid #2b2b2b", borderRadius: 12, overflow: "hidden" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "IBM Plex Mono, ui-monospace, monospace", fontSize: 12, letterSpacing: 0.14, textTransform: "uppercase" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "IBM Plex Mono, ui-monospace, monospace", fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase" }}>
           <thead>
             <tr style={{ borderBottom: "1px solid #2b2b2b" }}>
               <th style={{ textAlign: "left", paddingTop: 12, paddingRight: 16, paddingBottom: 12, paddingLeft: 16, color: "#8b8b8b" }}>Static ID</th>

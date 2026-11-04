@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Card, Wordmark, Tagline, SectionLabel, Button, Input, Label } from "@/components/ui";
+import { Card, Button, Input, Label } from "@/components/ui";
 
 const AUDIENCES = [
   { value: "followers", label: "Followers" },
@@ -17,11 +17,7 @@ export default function CreatePage() {
   const [mediaCount, setMediaCount] = useState(0);
 
   return (
-    <div className="p-3 bg-[#070707] min-h-screen">
-      <div className="mb-4">
-        <Wordmark className="text-[22px]" />
-        <Tagline />
-      </div>
+    <div className="p-3 bg-[#070707] min-h-full">
 
       <Card className="mb-4">
         <Label>Caption</Label>
@@ -61,7 +57,9 @@ export default function CreatePage() {
           <button
             key={a.value}
             onClick={() => setAudience(a.value)}
-className={`w-full px-3 py-2 rounded-[10px] border text-left mb-1 font-IBM-Plex-Mono text-[13px] ${audience === a.value ? "bg-[#ececec] border-[#ececec] text-[#000]" : "bg-[#000] border-[#3a3a3a] text-[#c9c9c9]"}`}
+            className={`w-full min-h-[44px] px-3 py-2 rounded-[10px] border text-left mb-1 font-IBM-Plex-Mono text-[13px] ${
+              audience === a.value ? "bg-[#ececec] border-[#ececec] text-[#000]" : "bg-[#000] border-[#3a3a3a] text-[#c9c9c9]"
+            }`}
           >
             {a.label}
           </button>

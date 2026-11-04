@@ -1,14 +1,9 @@
 "use client";
 
-import { Wordmark, Tagline, SectionLabel } from "@/components/ui";
 
 export default function HubPage() {
   return (
-    <div className="p-3 bg-[#070707] min-h-screen">
-      <div className="mb-3">
-        <Wordmark className="text-[22px]" />
-        <Tagline />
-      </div>
+    <div className="p-3 bg-[#070707] min-h-full">
 
       <Module title="Static Marketplace" sub="Member-to-member buying and selling" icon="M" onClick={() => {}} />
       <Module title="Static Store" sub="Official merchandise and limited drops" icon="S" onClick={() => {}} />

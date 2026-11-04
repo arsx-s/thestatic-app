@@ -32,6 +32,12 @@ export async function GET() {
         purpose: "any",
       },
       {
+        src: "/icons/maskable-icon.png",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "maskable",
+      },
+      {
         src: "/icons/apple-touch-icon.png",
         sizes: "180x180",
         type: "image/png",

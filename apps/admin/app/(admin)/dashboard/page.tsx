@@ -26,10 +26,10 @@ export default async function DashboardPage() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
       <div>
-        <h1 style={{ fontFamily: "Space Grotesk, ui-sans-serif, system-ui", fontSize: 26, fontWeight: 700, letterSpacing: -0.04, textTransform: "uppercase", color: "#ececec", margin: 0 }}>
+        <h1 style={{ fontFamily: "Space Grotesk, ui-sans-serif, system-ui", fontSize: 26, fontWeight: 700, letterSpacing: "-0.04em", textTransform: "uppercase", color: "#ececec", margin: 0 }}>
           Overview
         </h1>
-        <p style={{ fontSize: 13, color: "#8b8b8b", fontFamily: "IBM Plex Mono, ui-monospace, monospace", letterSpacing: 0.14, textTransform: "uppercase", marginTop: 6 }}>
+        <p style={{ fontSize: 13, color: "#8b8b8b", fontFamily: "IBM Plex Mono, ui-monospace, monospace", letterSpacing: "0.14em", textTransform: "uppercase", marginTop: 6 }}>
           Static Control &middot; ISSUE/001
         </p>
       </div>
@@ -43,7 +43,7 @@ export default async function DashboardPage() {
               padding: 20, display: "flex", flexDirection: "column", gap: 8,
             }}
           >
-            <span style={{ fontSize: 11, color: "#8b8b8b", fontFamily: "IBM Plex Mono, ui-monospace, monospace", letterSpacing: 0.14, textTransform: "uppercase" }}>
+            <span style={{ fontSize: 11, color: "#8b8b8b", fontFamily: "IBM Plex Mono, ui-monospace, monospace", letterSpacing: "0.14em", textTransform: "uppercase" }}>
               {s.label}
             </span>
             <span style={{ fontSize: 24, fontWeight: 700, color: "#ececec", fontFamily: "Space Grotesk, ui-sans-serif, system-ui", letterSpacing: -0.02 }}>
@@ -57,7 +57,7 @@ export default async function DashboardPage() {
       </div>
 
       <div style={{ background: "#0a0a0a", border: "1px solid #2b2b2b", borderRadius: 12, padding: 20 }}>
-        <h2 style={{ fontSize: 14, color: "#8b8b8b", fontFamily: "IBM Plex Mono, ui-monospace, monospace", letterSpacing: 0.14, textTransform: "uppercase", marginTop: 0, marginBottom: 16 }}>
+        <h2 style={{ fontSize: 14, color: "#8b8b8b", fontFamily: "IBM Plex Mono, ui-monospace, monospace", letterSpacing: "0.14em", textTransform: "uppercase", marginTop: 0, marginBottom: 16 }}>
           Recent activity
         </h2>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
