@@ -36,7 +36,7 @@ export default function AdminLogin() {
 
   return (
     <div style={{ minHeight: "100svh", display: "flex", alignItems: "center", justifyContent: "center", background: "#070707" }}>
-      <div style={{ width: 100, maxWidth: 400, padding: 24 }}>
+      <div style={{ width: "100%", maxWidth: 400, padding: 24 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
           <ShieldAlert style={{ width: 24, height: 24, color: "#ececec" }} />
           <span style={{ fontFamily: "Space Grotesk, ui-sans-serif, system-ui", fontSize: 20, fontWeight: 700, letterSpacing: -0.04, textTransform: "uppercase", color: "#ececec" }}>

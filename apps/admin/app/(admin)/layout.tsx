@@ -27,7 +27,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   const handleLogout = () => {
     // clear admin session cookie via a POST to /api/auth/logout
     fetch("/api/auth/logout", { method: "POST" }).then(() => {
-      router.push("/auth/login");
+      router.push("/login");
     });
   };
 

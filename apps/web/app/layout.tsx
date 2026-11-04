@@ -1,5 +1,7 @@
+import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { ServiceWorkerRegister } from "../components/service-worker-register";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -31,6 +33,7 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} bg-[#070707] text-[#ececec]`}>
         {children}
+        <ServiceWorkerRegister />
       </body>
     </html>
   );

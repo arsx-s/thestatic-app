@@ -30,7 +30,7 @@ export default function AccountRecoveryPage() {
         <Button
           variant="ghost"
           className="w-full"
-          onClick={() => router.push("/(auth)/login")}
+          onClick={() => router.push("/login")}
         >
           Back to log in
         </Button>

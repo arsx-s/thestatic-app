@@ -120,7 +120,7 @@ export default function LoginPage() {
         <Button
           variant="ghost"
           className="w-full mt-4"
-          onClick={() => router.push("/(auth)/forgot-password")}
+          onClick={() => router.push("/forgot-password")}
         >
           Forgot password?
         </Button>

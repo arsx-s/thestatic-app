@@ -182,7 +182,7 @@ export default function PasswordChangePage() {
             className="w-full"
             onClick={() => {
               clearSession();
-              router.push("/(auth)/login");
+              router.push("/login");
               router.refresh();
             }}
           >

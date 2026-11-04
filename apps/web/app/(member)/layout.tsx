@@ -30,7 +30,7 @@ export default function MemberLayout({
   const handleLogout = () => {
     localStorage.removeItem("thestatic:auth:access");
     localStorage.removeItem("thestatic:auth:refresh");
-    router.push("/(auth)/login");
+    router.push("/login");
     router.refresh();
   };
 

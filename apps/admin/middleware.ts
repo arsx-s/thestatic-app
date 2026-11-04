@@ -6,13 +6,13 @@ export function middleware(req: NextRequest) {
   const token = req.cookies.get("thestatic:admin:session")?.value;
 
   // Public auth routes
-  if (pathname.startsWith("/auth")) {
+  if (pathname === "/login" || pathname.startsWith("/api/auth")) {
     return NextResponse.next();
   }
 
   // Protect all admin routes
   if (!token) {
-    const url = new URL("/auth/login", req.url);
+    const url = new URL("/login", req.url);
     return NextResponse.redirect(url);
   }
 

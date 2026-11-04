@@ -28,7 +28,7 @@ export default function DeviceVerificationPage() {
         <Button
           variant="ghost"
           className="w-full mt-4"
-          onClick={() => router.push("/(auth)/login")}
+          onClick={() => router.push("/login")}
         >
           Back to log in
         </Button>
