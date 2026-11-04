@@ -126,15 +126,12 @@ export default function LoginPage() {
         </Button>
         <div className="mt-8 flex flex-col items-center gap-3">
           <div className="font-IBM-Plex-Mono text-[12px] text-[#8b8b8b]">Not a member?</div>
-          <Button
-            variant="ghost"
-            className="w-full text-[#ececec] underline"
-            onClick={() => {
-              window.open("https://thestatic.example/apply", "_blank");
-            }}
+          <a
+            href="https://thestaticcollective.vercel.app/#join"
+            className="w-full text-[#ececec] underline font-IBM-Plex-Mono text-[13px] text-center"
           >
             Apply to become a Static
-          </Button>
+          </a>
         </div>
       </div>
     </div>

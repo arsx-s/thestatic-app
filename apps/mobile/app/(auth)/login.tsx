@@ -117,7 +117,7 @@ export default function LoginScreen() {
           <TouchableOpacity
             style={styles.apply}
             onPress={() =>
-              Linking.openURL("https://thestatic.example/apply")
+              Linking.openURL("https://thestaticcollective.vercel.app/#join")
             }
           >
             <Text style={styles.applyText}>Apply to become a Static</Text>
